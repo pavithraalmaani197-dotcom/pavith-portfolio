@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>胡思羽 · AIGC 内容创作作品集</title>
+  <meta name="description" content="胡思羽的 AIGC 内容创作与视觉设计作品集，包含七个项目的视频、展板、设计过程与获奖证书。">
+  <style>
+    :root, [data-theme="glacier"] {
+      --bg: #F6F7F9; --grid: rgba(53,58,71,0.045);
+      --outer: #DCE5F0; --inner: #CBD7E6; --door: #E4ECF5; --wing: #EEF3F8;
+      --card: #FFFFFF; --sub: #F1F4F8;
+      --ink: #252B36; --sec: #525C6E; --muted: #848F9F;
+      --kraft: #E2CAA8; --red: #A42423; --navy: #162A46; --gold: #A99563; --lime: #C8E96B; --blue: #3F6AE0;
+      --line: #252B36; --soft: rgba(37,43,54,0.14);
+    }
+    [data-theme="atelier"] {
+      --bg: #FCF5E2; --grid: rgba(89,47,35,0.05);
+      --outer: #EFE4CD; --inner: #E3D4B5; --door: #F5ECDA; --wing: #F8F2E4;
+      --card: #FFFDF9; --sub: #F4EBD6;
+      --ink: #3D2117; --sec: #6B4234; --muted: #966F60;
+      --kraft: #D6B78D; --red: #A42423; --navy: #162A46; --gold: #A99563; --lime: #E2C472; --blue: #2B4C7E;
+      --line: #3D2117; --soft: rgba(61,33,23,0.16);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: var(--bg);
+      background-image: linear-gradient(to right, var(--grid) 1px, transparent 1px), linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+      background-size: 36px 36px;
+      color: var(--ink);
+      font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif;
+      min-height: 100vh; overflow-x: hidden; user-select: none;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    .serif { font-family: 'Noto Serif SC', serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    #fx-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+    .spotlight {
+      position: fixed; inset: 0; pointer-events: none; z-index: 250;
+      background: radial-gradient(700px circle at var(--mx, 50%) var(--my, 50%), transparent 20%, rgba(12,18,28,var(--dim, 0)) 100%);
+    }
+
+    [contenteditable="true"] {
+      outline: 1.5px dashed var(--red);
+      background: rgba(200,233,107,0.38);
+      padding: 1px 4px;
+      border-radius: 2px;
+      cursor: text !important;
+      user-select: text !important;
+    }
+    [contenteditable="true"]:focus {
+      outline: 2px solid var(--red);
+      background: #FFFFFF;
+      color: #252B36;
+    }
+
+    /* 锁定模式下彻底隐藏一切上传、删除、修改控件 */
+    body.locked-mode .edit-only-ctrl {
+      display: none !important;
+    }
+
+    /* 右上角访客仅可见「打开柜门」与「切换配色」 */
+    .top-tools { position: fixed; top: 14px; right: 16px; z-index: 350; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .zoom-back { position: fixed; top: 14px; left: 16px; z-index: 380; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .zoom-back.show { opacity: 1; pointer-events: auto; }
+
+    /* 仅在作者本地电脑 (file://) 下可见的打包导出工具条，导出后的公开版自动彻底移除 */
+    .owner-export-dock {
+      position: fixed; bottom: 14px; left: 16px; z-index: 900;
+      background: #162A46; color: #F8F6F2; border: 2px solid var(--line);
+      padding: 0.5rem 0.85rem; border-radius: 6px;
+      box-shadow: 4px 4px 0 var(--line);
+      display: none; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+      font-size: 0.72rem;
+    }
+    .owner-export-dock.visible { display: flex; }
+
+    .btn {
+      background: var(--card); color: var(--ink); border: 1.5px solid var(--line);
+      padding: 0.36rem 0.82rem; font-size: 0.74rem; font-weight: 600; cursor: pointer;
+      box-shadow: 2px 2px 0 var(--line); transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--line); background: var(--lime); color: #1E2414; }
+    .btn.red { background: var(--red); color: #FFF; }
+    .btn.active { background: var(--lime); color: #1E2414; }
+
+    /* 主舞台与对焦缩放 */
+    .stage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 58px 16px 28px; overflow: hidden; }
+    .cam-rig { transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1); transform-origin: center center; will-change: transform; }
+    .cabinet.focused .mod { opacity: 0.4; filter: grayscale(15%); transition: opacity 0.3s; }
+    .cabinet.focused .mod.active-mod { opacity: 1; filter: none; outline: 2.5px solid var(--red); outline-offset: 3px; z-index: 35; }
+
+    /* 三联折翼立柜 */
+    .cabinet { position: relative; display: flex; align-items: stretch; height: 535px; }
+    .wing {
+      width: 288px; background: var(--wing); border: 2.5px solid var(--line);
+      display: flex; flex-direction: column; justify-content: space-between; position: relative;
+      box-shadow: 0 20px 42px rgba(0,0,0,0.12);
+      transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease; z-index: 10;
+    }
+    .wing.left { border-right: none; border-radius: 6px 0 0 6px; transform: translateX(288px) scaleX(0.02); transform-origin: right center; opacity: 0; pointer-events: none; padding: 0.8rem 0.85rem 0.8rem 2.05rem; }
+    .wing.right { border-left: none; border-radius: 0 6px 6px 0; transform: translateX(-288px) scaleX(0.02); transform-origin: left center; opacity: 0; pointer-events: none; padding: 0.8rem 2.05rem 0.8rem 0.85rem; }
+    .cabinet.open .wing.left, .cabinet.open .wing.right { transform: translateX(0) scaleX(1); opacity: 1; pointer-events: auto; }
+
+    .close-strip {
+      position: absolute; top: 0; bottom: 0; width: 24px; background: var(--outer); color: var(--ink);
+      font-size: 0.62rem; font-weight: 600; writing-mode: vertical-rl; letter-spacing: 0.16em;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .wing.left .close-strip { left: 0; border-right: 1.5px solid var(--line); }
+    .wing.right .close-strip { right: 0; border-left: 1.5px solid var(--line); }
+    .close-strip:hover { background: var(--red); color: #FFF; }
+
+    .vault {
+      width: 560px; background: var(--outer); border: 2.5px solid var(--line); border-radius: 4px;
+      box-shadow: 0 26px 60px rgba(0,0,0,0.14), 8px 10px 0 var(--inner), 8px 10px 0 2px var(--line);
+      display: flex; flex-direction: column; position: relative; z-index: 20; overflow: hidden;
+    }
+
+    /* 柜顶控制横梁 */
+    .vault-top-beam {
+      height: 36px; background: var(--card); border-bottom: 2px solid var(--line);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 0.9rem; font-size: 0.62rem; letter-spacing: 0.08em; font-weight: 600; color: var(--sec); flex-shrink: 0;
+    }
+    .beam-gadgets { display: flex; align-items: center; gap: 0.45rem; }
+    .gadget-pill {
+      display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px;
+      border: 1px solid var(--line); border-radius: 99px; background: var(--sub);
+      cursor: pointer; font-size: 0.55rem;
+    }
+    .gadget-pill:hover { background: var(--lime); color: #1E2414; }
+    .dial-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); border: 1.5px solid var(--line); }
+
+    /* 柜门闭合状态：双扉铭牌与提示文字 */
+    .front-doors { position: absolute; top: 36px; left: 0; right: 0; bottom: 0; z-index: 50; display: grid; grid-template-columns: 1fr 1fr; cursor: pointer; }
+    .cabinet.open .front-doors { pointer-events: none; }
+    .door-leaf {
+      background: var(--door); padding: 1.9rem 1.25rem;
+      display: flex; flex-direction: column; justify-content: space-between;
+      transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+    }
+    .door-leaf.l { border-right: 1.5px solid var(--line); }
+    .door-leaf.r { border-left: 1px solid rgba(255,255,255,0.6); }
+    .cabinet.open .door-leaf.l { transform: translateX(-102%); opacity: 0; }
+    .cabinet.open .door-leaf.r { transform: translateX(102%); opacity: 0; }
+
+    .louvers { display: flex; flex-direction: column; gap: 6px; width: 66%; margin: 0 auto; }
+    .louvers i { height: 5px; background: var(--inner); border-top: 1.5px solid var(--line); display: block; }
+
+    .front-plate-card {
+      background: var(--card); border: 1.5px solid var(--line); padding: 0.75rem 0.65rem;
+      text-align: center; width: 88%; margin: 0 auto; box-shadow: 3px 3px 0 var(--line);
+    }
+
+    .open-latch {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 78px; height: 78px; border-radius: 50%; background: var(--card); border: 2.5px solid var(--line);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.2), inset 0 0 0 4px var(--gold);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease, background 0.2s;
+    }
+    .front-doors:hover .open-latch { transform: translate(-50%, -50%) scale(1.08) rotate(15deg); background: var(--lime); }
+    .cabinet.open .open-latch { transform: translate(-50%, -50%) rotate(180deg) scale(0); opacity: 0; }
+
+    /* 左翼组件：照片工牌 + 立体翻页技能盒 */
+    .box-card { background: var(--card); border: 1.5px solid var(--line); padding: 0.72rem; box-shadow: 3px 3px 0 var(--line); position: relative; cursor: pointer; }
+    .photo-frame {
+      width: 74px; height: 94px; background: var(--outer); border: 1.5px solid var(--line);
+      position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: zoom-in; flex-shrink: 0; box-shadow: 2px 2px 0 var(--line);
+    }
+    .photo-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .flip-wrap { position: relative; padding-top: 20px; }
+    .peek { position: absolute; left: 8px; right: 8px; height: 24px; border: 1.5px solid var(--line); border-radius: 5px 5px 0 0; padding: 3px 8px; font-size: 0.54rem; font-weight: 700; display: flex; justify-content: space-between; }
+    .peek.p1 { top: 0; background: var(--kraft); color: #2B1B10; z-index: 1; }
+    .peek.p2 { top: 9px; background: var(--blue); color: #FFF; z-index: 2; }
+    .flip-main { position: relative; z-index: 3; background: var(--lime); color: #1E2414; border: 1.5px solid var(--line); border-radius: 5px; padding: 0.65rem 0.65rem 0.85rem; min-height: 118px; display: flex; flex-direction: column; justify-content: space-between; }
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+    .tag { background: rgba(255,255,255,0.92); color: #1E2414; border: 1px solid #1E2414; padding: 2px 6px; font-size: 0.56rem; font-weight: 600; border-radius: 2px; }
+    .tray-lip { position: relative; z-index: 4; margin-top: -8px; height: 20px; background: var(--card); border: 1.5px solid var(--line); border-radius: 0 0 4px 4px; display: flex; justify-content: center; align-items: center; font-size: 0.52rem; font-weight: 700; box-shadow: 0 3px 0 var(--line); }
+
+    /* 中央主柜：7大作品切换标签 + 外部实时视频/图片封面展示框 */
+    .vault-body { flex: 1; background: var(--inner); padding: 1.05rem; display: flex; flex-direction: column; }
+    .console { width: 100%; height: 100%; background: var(--card); border: 2px solid var(--line); border-radius: 6px; box-shadow: 6px 6px 0 var(--line); padding: 0.9rem; display: flex; flex-direction: column; justify-content: space-between; }
+    .tabs-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .f-tab { border: 1.5px solid var(--line); border-bottom: none; border-radius: 4px 4px 0 0; padding: 0.42rem 0.1rem; font-size: 0.58rem; font-weight: 600; text-align: center; cursor: pointer; opacity: 0.74; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .f-tab.active { opacity: 1; transform: translateY(2px); font-weight: 700; box-shadow: 0 -2px 0 var(--red); z-index: 2; }
+    .f-tab[data-i="0"] { background: #DCE6F2; }
+    .f-tab[data-i="1"] { background: #C8D4E3; }
+    .f-tab[data-i="2"] { background: #E8D5E6; }
+    .f-tab[data-i="3"] { background: #D7E8D4; }
+    .f-tab[data-i="4"] { background: #C8E96B; }
+    .f-tab[data-i="5"] { background: #F2D2CF; }
+    .f-tab[data-i="6"] { background: #F5E6C8; }
+
+    .work-hero-card {
+      flex: 1; border: 2px solid var(--line); background: linear-gradient(180deg, var(--sub) 0%, var(--kraft) 100%);
+      padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .work-hero-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.14); }
+    .work-row { display: grid; grid-template-columns: 196px 1fr; gap: 1.15rem; align-items: center; margin: auto 0; }
+    .thumb-box {
+      width: 100%; aspect-ratio: 16/10; background: #121822; border: 2px solid var(--line);
+      box-shadow: 3px 3px 0 var(--line); overflow: hidden; position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .thumb-box img, .thumb-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cover-badge {
+      position: absolute; bottom: 5px; right: 5px; background: rgba(164,36,35,0.92); color: #FFF;
+      font-size: 0.52rem; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.45); pointer-events: none; z-index: 4;
+    }
+    .pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .pill { background: var(--card); border: 1px solid var(--line); padding: 2px 7px; font-size: 0.58rem; font-weight: 600; }
+    .pill.hi { background: var(--red); color: #FFF; }
+    .pull-bar { display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; border-top: 1.5px dashed rgba(37,43,54,0.25); }
+    .ring { width: 28px; height: 28px; border-radius: 50%; background: var(--card); border: 2.5px solid var(--line); }
+
+    /* 右翼组件：三联证书相框 + 联络卡 */
+    .cert-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.42rem; margin-top: 0.4rem; }
+    .cert-item { background: var(--sub); border: 1.5px solid var(--line); padding: 0.35rem 0.25rem; text-align: center; cursor: pointer; box-shadow: 2px 2px 0 var(--line); height: 122px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+    .cert-item:hover { background: var(--lime); color: #1E2414; }
+    .cert-prev { width: 100%; height: 80px; max-height: 80px; background: #FFF; border: 1px solid var(--soft); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .cert-prev img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* 弹窗系统 */
+    .mask { position: fixed; inset: 0; background: rgba(14,20,30,0.76); backdrop-filter: blur(8px); z-index: 800; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .mask.open { opacity: 1; pointer-events: auto; }
+    .dialog { width: 1180px; max-width: 96vw; height: 88vh; background: var(--card); border: 2.5px solid var(--line); border-radius: 6px; box-shadow: 10px 12px 0 var(--line); display: flex; flex-direction: column; overflow: hidden; }
+    .dialog.sm { width: 740px; height: auto; max-height: 90vh; overflow-y: auto; }
+    .d-head { min-height: 52px; background: var(--outer); border-bottom: 2px solid var(--line); padding: 0.5rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .d-bar { background: var(--sub); border-bottom: 1.5px solid var(--line); padding: 0.5rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .d-body { flex: 1; overflow-y: auto; padding: 1.35rem 1.5rem 2.2rem; background: var(--bg); display: flex; flex-direction: column; gap: 1.35rem; }
+
+    .intro-card { background: var(--card); border: 1.5px solid var(--line); border-left: 4px solid var(--red); padding: 0.95rem 1.2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.8rem; box-shadow: 3px 3px 0 var(--line); }
+    .sec-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-bottom: 2px solid var(--line); padding-bottom: 0.38rem; margin-bottom: 0.8rem; }
+    .g-1 { display: grid; grid-template-columns: 1fr; gap: 1.05rem; }
+    .g-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.05rem; }
+    .g-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.95rem; }
+
+    .slot { background: var(--card); border: 1.5px solid var(--line); padding: 0.65rem; box-shadow: 3px 3px 0 var(--line); display: flex; flex-direction: column; justify-content: space-between; }
+    .slot.drag-over { border: 2px dashed var(--red); background: rgba(200,233,107,0.25); }
+    .slot-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; gap: 0.4rem; flex-wrap: wrap; }
+    .s-tag { font-size: 0.72rem; font-weight: 700; color: var(--ink); }
+    .up-lbl { background: var(--red); color: #FFF; border: 1px solid var(--line); padding: 3px 9px; font-size: 0.6rem; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+    .up-lbl:hover { background: #1E2414; }
+
+    /* 空画框态 */
+    .s-frame { width: 100%; aspect-ratio: 16/9.2; background: #121822; border: 1.5px dashed rgba(255,255,255,0.25); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: default; position: relative; }
+    .s-frame.board { aspect-ratio: 3/4; }
+    .empty-tip { color: #D8E3F0; text-align: center; padding: 1rem; font-size: 0.84rem; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: repeating-linear-gradient(-45deg, #121822 0 10px, #161E2B 10px 20px); }
+
+    /* 画框内部多图自适应网格 */
+    .slot-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 0.65rem;
+      background: #121822;
+      padding: 0.65rem;
+      border: 1px solid var(--line);
+    }
+    .slot-gallery-grid.count-1 {
+      grid-template-columns: 1fr;
+      padding: 0;
+    }
+    .slot-gallery-grid.count-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .slot-gallery-grid.count-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .media-tile {
+      position: relative;
+      aspect-ratio: 16/10;
+      background: #0B0F17;
+      border: 1px solid rgba(255,255,255,0.16);
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+    .slot-gallery-grid.board-mode .media-tile {
+      aspect-ratio: 3/4;
+    }
+    .media-tile.contain img, .media-tile.contain video { object-fit: contain; }
+    .media-tile img, .media-tile video { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
+    .media-tile:hover img { transform: scale(1.02); }
+
+    .tile-top-bar {
+      position: absolute; top: 6px; left: 6px; right: 6px; z-index: 6;
+      display: flex; justify-content: space-between; align-items: center; pointer-events: none;
+    }
+    .tile-btn {
+      pointer-events: auto;
+      background: rgba(18,24,34,0.86); color: #FFF; border: 1px solid rgba(255,255,255,0.45);
+      font-size: 0.56rem; font-family: 'JetBrains Mono', monospace; padding: 2px 6px; cursor: pointer;
+    }
+    .tile-btn:hover, .tile-btn.is-cover { background: var(--red); border-color: #FFF; }
+
+    .add-more-tile {
+      aspect-ratio: 16/10;
+      min-height: 110px;
+      border: 1.5px dashed rgba(255,255,255,0.38);
+      color: #D8E3F0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 0.76rem; font-weight: 600; cursor: pointer;
+      background: rgba(255,255,255,0.04);
+    }
+    .add-more-tile:hover { background: rgba(200,233,107,0.22); color: #FFF; }
+
+    .lightbox { position: fixed; inset: 0; background: rgba(10,14,22,0.92); z-index: 1200; display: none; align-items: center; justify-content: center; padding: 1.2rem; cursor: zoom-out; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 94vw; max-height: 88vh; object-fit: contain; border: 2px solid #FFF; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+
+    /* 手机端自适应布局 */
+    @media (max-width: 900px) {
+      .stage { align-items: flex-start; padding: 62px 12px 36px; overflow: visible; }
+      .cam-rig { width: 100%; max-width: 480px; transform: none !important; }
+      .cabinet { flex-direction: column; height: auto; width: 100%; gap: 14px; }
+      .vault { width: 100%; min-height: 440px; order: 1; }
+      .wing.left, .wing.right { width: 100%; border: 2.5px solid var(--line); border-radius: 6px; padding: 0.85rem; transform: none !important; display: none; gap: 12px; }
+      .cabinet.open .wing.left { display: flex; opacity: 1; pointer-events: auto; order: 2; }
+      .cabinet.open .wing.right { display: flex; opacity: 1; pointer-events: auto; order: 3; }
+      .close-strip { display: none; }
+      .tabs-row { display: flex; overflow-x: auto; gap: 4px; }
+      .f-tab { flex: 0 0 auto; padding: 0.42rem 0.65rem; font-size: 0.68rem; }
+      .work-row, .g-2, .g-3, .id-grid, .slot-gallery-grid.count-2, .slot-gallery-grid.count-3 { grid-template-columns: 1fr !important; }
+      .thumb-box { aspect-ratio: 16/9; }
+      .dialog { width: 100%; height: 94vh; }
+    }
+
+    .portfolio-video { position:relative; width:100%; height:100%; min-height:180px; background:#121822; }
+    .portfolio-video video { width:100%; height:100%; display:block; object-fit:contain!important; }
+    .portfolio-play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); border:1px solid rgba(255,255,255,.65); border-radius:999px; padding:12px 20px; background:rgba(15,24,39,.86); color:white; cursor:pointer; font:inherit; white-space:nowrap; z-index:2; }
+    .portfolio-play:hover { background:#a42423; }
+    .portfolio-play[hidden], .portfolio-video-error[hidden] { display:none; }
+    .portfolio-video-error { position:absolute; bottom:42px; left:8px; right:8px; padding:8px; background:rgba(15,24,39,.9); color:white; font-size:13px; z-index:3; }
+  </style>
+  <!-- 预留固化数据注入槽：当导出公开版时，你的全部图片、文字会自动写入此处 -->
+  <script id="baked-data-script">window.__IS_EXPORTED_PUBLIC_BUILD__ = true; window.__BAKED_PORTFOLIO_DATA__ = {"textMap": {"id_header": "BASIC INFORMATION", "name": "胡思羽", "role": "AIGC 内容创作 / 游戏视觉 / 影像叙事", "school": "数字媒体艺术", "sk_h": "个人技能 · AIGC全链路创作", "t1": "AIGC图像与视频生成", "t2": "游戏世界观与高保真UI", "t3": "角色三视图与一致控制", "t4": "短剧与动画分镜叙事", "sk_f": "涵盖 7 组完整游戏视觉、动画短片与短剧创作", "beam_title": "HU SIYU // 07 SELECTED WORKS VAULT", "door_l_code_v2": "ARCHIVE 01 - 04", "door_l_title_v2": "创作档案 · 左扉", "door_l_sub_v2": "新雪 · 后街\u003cbr>苏棠短剧 · 忆梦园", "door_l_hint": "[单击推开左门]", "door_r_code_v2": "ARCHIVE 05 - 07", "door_r_title_v2": "创作档案 · 右扉", "door_r_sub_v2": "蝶魄 · 灯火可亲\u003cbr>星光坠落之时(三体改编)", "door_r_hint": "[单击推开右门]", "latch_txt": "旋转开柜", "code_v2_houjie": "ARCHIVE 02 / 07", "title_v2_houjie": "后街 · Backstreet", "sub_houjie": "雨夜老街场景氛围与光影叙事。用湿润青石板、古树旅人背影与清晨锅灶暖光建立生活气息。", "pill_v2_houjie_0": "成品视频展示", "pill_v2_houjie_1": "过程性展示", "act_v2_houjie": "点击进入《后街 · Backstreet》 →", "cert_header": "CERTIFICATES // 获奖证明", "cert_t0": "东方创意之星", "cert_t1": "HKDADC三等", "cert_t2": "UKDA提名奖", "slogan": "下一份故事，从这里开始。", "phone": "191 8130 6040", "email": "2862960645@qq.com", "wechat": "Y140042881", "bio_intro": "数字媒体艺术 · 专注于从概念草图、资产设定到动态镜头的全链路视觉创作。", "bio_skills": "\n              提出概念（主题、故事与用户问题） · 确立画面（人物、空间与统一色彩） · 生成镜头（Midjourney / 即梦AI / 可灵 / 三维动态分镜） · 完成呈现（展板 / 高保真游戏界面 / 可玩 Demo）\n            ", "title_v2_xinxue": "新雪", "h_xinxue_screen": "《新雪》三维/AIGC 动画短片成片与成果展板", "l_xinxue_screen": "从孤寂的雪夜进入亭中对饮，以一杯酒开启故国幻梦：", "role_xinxue": "前期概念 / 历史文献考据 / 动态镜头与分镜 / 成果展板", "sec_xinxue_screen_0": "成品视频与成果展板", "stag_xx_v1": "《新雪》成品视频", "stag_xx_b1": "《新雪》成果展板", "code_v2_denghuo": "ARCHIVE 07 / 07", "title_v2_denghuo": "灯火可亲", "sub_denghuo": "节日游戏视觉与 AIGC 高保真界面。以古典灯笼与画轴轮廓建立节日识别，用发光暖色提示视线。", "pill_v2_denghuo_0": "3 张成品展板", "pill_v2_denghuo_1": "多张高保真界面展示", "act_v2_denghuo": "点击进入《灯火可亲》 →", "h_denghuo_screen": "《灯火可亲》三联成品展板与高保真界面展示", "l_denghuo_screen": "以灯的形态组织节日情绪，用暖色提示玩家视线：", "role_denghuo": "节日游戏视觉概念 / 多张高保真界面 / 3张成品展板", "sec_denghuo_screen_0": "成品展板展示", "stag_dh_b1": "灯火可亲 · 展板 01", "stag_dh_b2": "灯火可亲 · 展板 02", "stag_dh_b3": "灯火可亲 · 展板 03", "sec_denghuo_screen_1": "高保真界面展示", "stag_dh_hifi_all": "《灯火可亲》高保真界面展示图集", "stag_dh_h1": "高保真界面 01", "stag_dh_h2": "高保真界面 02", "stag_dh_h3": "高保真界面 03", "stag_dh_h4": "高保真界面 04", "code_v2_xinxue": "ARCHIVE 01 / 07", "sub_xinxue": "改编自《湖心亭看雪》三维/AIGC短片。冷色留白统摄现实，暖色仅在炉火与金陵灯市幻梦出现。", "pill_v2_xinxue_0": "1 个视频展示", "pill_v2_xinxue_1": "1 张成品展板", "pill_v2_xinxue_2": "前期过程文件", "act_v2_xinxue": "点击进入《新雪》 →", "cert_full_1": "第五届 HKDADC 香港数字艺术设计大赛 · 三等奖（《新雪》）", "dl_c": "ARCHIVE 01 - 04", "dl_t": "创作档案 · 左扉", "dl_s": "新雪 · 后街\u003cbr>苏棠短剧 · 忆梦园", "dl_h": "[单击推开左门]", "dr_c": "ARCHIVE 05 - 07", "dr_t": "创作档案 · 右扉", "dr_s": "蝶魄 · 灯火可亲\u003cbr>星光坠落之时(三体改编)", "dr_h": "[单击推开右门]", "c_xinxue": "ARCHIVE 01 / 07", "t_xinxue": "新雪", "pl_xinxue_0": "1 个视频展示", "pl_xinxue_1": "1 张成品展板", "pl_xinxue_2": "前期过程文件", "act_xinxue": "点击进入《新雪》 →", "c_denghuo": "ARCHIVE 07 / 07", "t_denghuo": "灯火可亲", "pl_denghuo_0": "3 张成品展板", "pl_denghuo_1": "多张高保真界面展示", "act_denghuo": "点击进入《灯火可亲》 →"}, "slots": {"stang_p1": [{"uid": "item_1792064311495_gs8oc", "name": "Gemini_Generated_Image_yepcxnyepcxnyepc", "isVid": false, "url": "assets/0001-stang_p1.webp"}, {"uid": "item_1792064311503_e0r59", "name": "老宫女_正面", "isVid": false, "url": "assets/0002-stang_p1.webp"}, {"uid": "item_1792064311504_jzkeq", "name": "刘二_正面", "isVid": false, "url": "assets/0003-stang_p1.webp"}, {"uid": "item_1792064311504_b1cxk", "name": "苏承安_正面", "isVid": false, "url": "assets/0004-stang_p1.webp"}, {"uid": "item_1792064311505_rd6ce", "name": "苏候爷_正面", "isVid": false, "url": "assets/0005-stang_p1.webp"}, {"uid": "item_1792064311505_l2ze0", "name": "苏锦_正面", "isVid": false, "url": "assets/0006-stang_p1.webp"}, {"uid": "item_1792064311507_d4c32", "name": "苏墨_正面", "isVid": false, "url": "assets/0007-stang_p1.webp"}, {"uid": "item_1792064311509_d8e8j", "name": "苏棠_正面", "isVid": false, "url": "assets/0008-stang_p1.webp"}, {"uid": "item_1792064311510_spt1d", "name": "太后_正面", "isVid": false, "url": "assets/0009-stang_p1.webp"}, {"uid": "item_1792064311512_6q9jo", "name": "萧瑾_正面", "isVid": false, "url": "assets/0010-stang_p1.webp"}, {"uid": "item_1792064311513_dwfo9", "name": "小苏墨_正面", "isVid": false, "url": "assets/0011-stang_p1.webp"}, {"uid": "item_1792064311514_45y51", "name": "小苏棠_正面", "isVid": false, "url": "assets/0012-stang_p1.webp"}, {"uid": "item_1792064311518_skj8d", "name": "云娘_正面", "isVid": false, "url": "assets/0013-stang_p1.webp"}, {"uid": "item_1792064311521_q84fc", "name": "周氏_正面", "isVid": false, "url": "assets/0014-stang_p1.webp"}], "stang_p2": [{"uid": "item_1792064418583_ml9bd", "name": "b7b662d4c99ae4f8a58a9334a27fe287", "isVid": false, "url": "assets/0015-stang_p2.webp"}, {"uid": "item_1792064418585_g0utp", "name": "ca4b56cb5d0b4ea452ab330d82546337", "isVid": false, "url": "assets/0016-stang_p2.webp"}, {"uid": "item_1792064418585_whpyt", "name": "cb07ebeb20b0ca3ee243e46b7b905740", "isVid": false, "url": "assets/0017-stang_p2.webp"}, {"uid": "item_1792064429525_usull", "name": "0c68dcb59df046816292c0d118774616", "isVid": false, "url": "assets/0018-stang_p2.webp"}, {"uid": "item_1792064429526_x2m7v", "name": "7ba1d53f2f572cc722abc8786afe6b17", "isVid": false, "url": "assets/0019-stang_p2.webp"}, {"uid": "item_1792064429526_5qmv8", "name": "9ba65918d5f12632845b3583721cbf11", "isVid": false, "url": "assets/0020-stang_p2.webp"}, {"uid": "item_1792064439798_jhtqz", "name": "142b6110d768099aa7b292e07e419485", "isVid": false, "url": "assets/0021-stang_p2.webp"}, {"uid": "item_1792064439799_alv3s", "name": "959fd7443cabcd2f60e0900360cfe497", "isVid": false, "url": "assets/0022-stang_p2.webp"}, {"uid": "item_1792064439800_rxfzf", "name": "1856a302897abeafb79345a50046d44f", "isVid": false, "url": "assets/0023-stang_p2.webp"}, {"uid": "item_1792064439800_2atup", "name": "2093cfa9bd44f988e4cdc14a8fe53cf7", "isVid": false, "url": "assets/0024-stang_p2.webp"}, {"uid": "item_1792064448373_0wwg7", "name": "场景一01", "isVid": false, "url": "assets/0025-stang_p2.webp"}, {"uid": "item_1792064448374_tw8or", "name": "场景一02", "isVid": false, "url": "assets/0026-stang_p2.webp"}, {"uid": "item_1792064448375_c9gtc", "name": "场景一03", "isVid": false, "url": "assets/0027-stang_p2.webp"}, {"uid": "item_1792064455040_nfl2x", "name": "特写。苏棠独坐黑暗中的侧脸，格子窗投下光影，烛光勾勒轮廓。_2K_202604111154", "isVid": false, "url": "assets/0028-stang_p2.webp"}], "stang_c_all": [{"uid": "item_1792064233570_wcupd", "name": "第四集", "isVid": true, "url": "assets/0029-stang_c_all.mp4", "poster": "assets/0029-stang_c_all-poster.webp", "duration": 99.31}, {"uid": "item_1792064245194_6y1wr", "name": "第五集", "isVid": true, "url": "assets/0030-stang_c_all.mp4", "poster": "assets/0030-stang_c_all-poster.webp", "duration": 84.52}, {"uid": "item_1792064270890_rw2hh", "name": "第八集", "isVid": true, "url": "assets/0031-stang_c_all.mp4", "poster": "assets/0031-stang_c_all-poster.webp", "duration": 43.21}, {"uid": "item_1792064484909_54wh5", "name": "展板", "isVid": false, "url": "assets/0032-stang_c_all.webp"}, {"uid": "item_1792069410658_v3oah", "name": "第七集", "isVid": true, "url": "assets/0033-stang_c_all.mp4", "poster": "assets/0033-stang_c_all-poster.webp", "duration": 46.67}], "avatar": [{"uid": "av", "name": "avatar", "isVid": false, "url": "assets/0034-avatar.webp"}], "cert_0": [{"uid": "c", "name": "cert", "isVid": false, "url": "assets/0035-cert_0.webp"}], "cert_1": [{"uid": "c", "name": "cert", "isVid": false, "url": "assets/0036-cert_1.webp"}], "cert_2": [{"uid": "c", "name": "cert", "isVid": false, "url": "assets/0037-cert_2.webp"}], "dh_b1": [{"uid": "item_1792068201082_fzuif", "name": "9", "isVid": false, "url": "assets/0038-dh_b1.webp"}], "dh_b2": [{"uid": "item_1792068205005_htzny", "name": "10", "isVid": false, "url": "assets/0039-dh_b2.webp"}], "dh_b3": [{"uid": "item_1792068210872_mv1ab", "name": "11", "isVid": false, "url": "assets/0040-dh_b3.webp"}], "dh_hifi_all": [{"uid": "item_1792068435349_4acmw", "name": "记忆画廊【胡思羽】", "isVid": false, "url": "assets/0041-dh_hifi_all.webp"}, {"uid": "item_1792068435350_463la", "name": "记忆画廊01【胡思羽】", "isVid": false, "url": "assets/0042-dh_hifi_all.webp"}, {"uid": "item_1792068435351_is7ju", "name": "记忆画廊02【胡思羽】", "isVid": false, "url": "assets/0043-dh_hifi_all.webp"}, {"uid": "item_1792068435352_xnq7e", "name": "记忆画廊03【胡思羽】", "isVid": false, "url": "assets/0044-dh_hifi_all.webp"}, {"uid": "item_1792068435353_ad2r0", "name": "记忆画廊04【胡思羽】", "isVid": false, "url": "assets/0045-dh_hifi_all.webp"}, {"uid": "item_1792068435353_8xgyf", "name": "记忆画廊05【胡思羽】", "isVid": false, "url": "assets/0046-dh_hifi_all.webp"}, {"uid": "item_1792068475635_s1jzb", "name": "祝福画册·归途有光【胡思羽】", "isVid": false, "url": "assets/0047-dh_hifi_all.webp"}, {"uid": "item_1792068475636_1qxsp", "name": "祝福画册·亲情暖暖【胡思羽】", "isVid": false, "url": "assets/0048-dh_hifi_all.webp"}, {"uid": "item_1792068475636_go5b4", "name": "祝福画册·思想之花【胡思羽】", "isVid": false, "url": "assets/0049-dh_hifi_all.webp"}, {"uid": "item_1792068475636_oylfj", "name": "祝福画册·团圆之夜【胡思羽】", "isVid": false, "url": "assets/0050-dh_hifi_all.webp"}, {"uid": "item_1792069082255_va6ov", "name": "00000", "isVid": false, "url": "assets/0051-dh_hifi_all.webp"}], "dh_p1": [{"uid": "item_1792068509631_bie43", "name": "06", "isVid": false, "url": "assets/0052-dh_p1.webp"}, {"uid": "item_1792068509632_cg5qr", "name": "07", "isVid": false, "url": "assets/0053-dh_p1.webp"}, {"uid": "item_1792068509633_sx6hz", "name": "08", "isVid": false, "url": "assets/0054-dh_p1.webp"}, {"uid": "item_1792068509633_wrh8p", "name": "09", "isVid": false, "url": "assets/0055-dh_p1.webp"}, {"uid": "item_1792068509633_v1o0j", "name": "10(1)", "isVid": false, "url": "assets/0056-dh_p1.webp"}, {"uid": "item_1792068509634_yoa08", "name": "10", "isVid": false, "url": "assets/0057-dh_p1.webp"}, {"uid": "item_1792068509634_p5yn7", "name": "11", "isVid": false, "url": "assets/0058-dh_p1.webp"}, {"uid": "item_1792068509636_q6gbp", "name": "12", "isVid": false, "url": "assets/0059-dh_p1.webp"}, {"uid": "item_1792068509637_of9zc", "name": "13", "isVid": false, "url": "assets/0060-dh_p1.webp"}, {"uid": "item_1792068509641_sexua", "name": "14", "isVid": false, "url": "assets/0061-dh_p1.webp"}, {"uid": "item_1792068509641_jind3", "name": "15", "isVid": false, "url": "assets/0062-dh_p1.webp"}, {"uid": "item_1792068509642_fx9tr", "name": "16", "isVid": false, "url": "assets/0063-dh_p1.webp"}, {"uid": "item_1792068509642_srgpi", "name": "17", "isVid": false, "url": "assets/0064-dh_p1.webp"}, {"uid": "item_1792068509643_9ouri", "name": "18", "isVid": false, "url": "assets/0065-dh_p1.webp"}, {"uid": "item_1792068509643_8uu93", "name": "19", "isVid": false, "url": "assets/0066-dh_p1.webp"}, {"uid": "item_1792068509643_3qntd", "name": "20", "isVid": false, "url": "assets/0067-dh_p1.webp"}, {"uid": "item_1792068509644_frq6s", "name": "21", "isVid": false, "url": "assets/0068-dh_p1.webp"}, {"uid": "item_1792068509644_lgw0j", "name": "22", "isVid": false, "url": "assets/0069-dh_p1.webp"}, {"uid": "item_1792068509645_t1iyz", "name": "23", "isVid": false, "url": "assets/0070-dh_p1.webp"}, {"uid": "item_1792068509645_7824c", "name": "24", "isVid": false, "url": "assets/0071-dh_p1.webp"}, {"uid": "item_1792068509646_rkfam", "name": "25", "isVid": false, "url": "assets/0072-dh_p1.webp"}, {"uid": "item_1792068509646_ev4am", "name": "26", "isVid": false, "url": "assets/0073-dh_p1.webp"}, {"uid": "item_1792068509647_yxlf0", "name": "27", "isVid": false, "url": "assets/0074-dh_p1.webp"}, {"uid": "item_1792068509647_eurqy", "name": "29", "isVid": false, "url": "assets/0075-dh_p1.webp"}, {"uid": "item_1792068509649_pinpg", "name": "30", "isVid": false, "url": "assets/0076-dh_p1.webp"}], "hj_p_all": [{"uid": "item_1792064122935_abp8z", "name": "flova_Element_Huangjueshu_Sign_img_202606071620_db2d71", "isVid": false, "url": "assets/0077-hj_p_all.webp"}, {"uid": "item_1792064122935_iu84u", "name": "flova_Element_Old_Street_Morning_Fog_img_202606071533_630e24", "isVid": false, "url": "assets/0078-hj_p_all.webp"}, {"uid": "item_1792064126646_vl7e0", "name": "flova_Shot_009_Static_Medium_Old_Man_Liu_start_frame_img_202606071758_db3eab", "isVid": false, "url": "assets/0079-hj_p_all.webp"}, {"uid": "item_1792064126646_qdx1n", "name": "flova_Shot_012_Present_Day_Return_start_frame_img_202606071847_3554e9", "isVid": false, "url": "assets/0080-hj_p_all.webp"}, {"uid": "item_1792064126647_qqifq", "name": "flova_Shot_013_Wide_Banyan_Tree_End_start_frame_img_202606071935_8e967b", "isVid": false, "url": "assets/0081-hj_p_all.webp"}, {"uid": "item_1792064126647_eeq64", "name": "Gemini_Generated_Image_78w9j378w9j378w9", "isVid": false, "url": "assets/0082-hj_p_all.webp"}, {"uid": "item_1792064126647_nw5jb", "name": "Gemini_Generated_Image_axsbk1axsbk1axsb", "isVid": false, "url": "assets/0083-hj_p_all.webp"}, {"uid": "item_1792064126648_vsdib", "name": "Gemini_Generated_Image_ya8r3wya8r3wya8r", "isVid": false, "url": "assets/0084-hj_p_all.webp"}, {"uid": "item_1792064137820_56zby", "name": "角落老汉", "isVid": false, "url": "assets/0085-hj_p_all.webp"}, {"uid": "item_1792064137820_j07qd", "name": "看报人", "isVid": false, "url": "assets/0086-hj_p_all.webp"}, {"uid": "item_1792064137821_50oct", "name": "老农", "isVid": false, "url": "assets/0087-hj_p_all.webp"}, {"uid": "item_1792064137821_wgxob", "name": "刘老头", "isVid": false, "url": "assets/0088-hj_p_all.webp"}, {"uid": "item_1792064137822_zzk7d", "name": "男", "isVid": false, "url": "assets/0089-hj_p_all.webp"}, {"uid": "item_1792064137822_f5kjc", "name": "碎花裙女生", "isVid": false, "url": "assets/0090-hj_p_all.webp"}, {"uid": "item_1792064137823_1qsiq", "name": "颓废男生", "isVid": false, "url": "assets/0091-hj_p_all.webp"}, {"uid": "item_1792064137823_yjkc8", "name": "颓废男生老", "isVid": false, "url": "assets/0092-hj_p_all.webp"}, {"uid": "item_1792064137826_7r9ev", "name": "喂饭女人", "isVid": false, "url": "assets/0093-hj_p_all.webp"}, {"uid": "item_1792064171313_attx8", "name": "后街完整版-封面", "isVid": false, "url": "assets/0094-hj_p_all.webp"}], "hj_v1": [{"uid": "item_1792064105552_xyu12", "name": "后街", "isVid": true, "url": "assets/0095-hj_v1.mp4", "poster": "assets/0095-hj_v1-poster.webp", "duration": 86.31}], "psy_b1": [{"uid": "item_1792062802911_cnrx7", "name": "期末作业-展板设计1", "isVid": false, "url": "assets/0096-psy_b1.webp"}], "psy_b2": [{"uid": "item_1792062807968_15hl7", "name": "期末作业-展板设计2", "isVid": false, "url": "assets/0097-psy_b2.webp"}], "psy_b3": [{"uid": "item_1792062812450_txng9", "name": "期末作业-展板设计3", "isVid": false, "url": "assets/0098-psy_b3.webp"}], "psy_b4": [{"uid": "item_1792062815834_6f7bw", "name": "期末作业-展板设计4", "isVid": false, "url": "assets/0099-psy_b4.webp"}], "psy_p1": [{"uid": "item_1792062859300_8wjh1", "name": "374f909978cd28be10c5dc9cbc5bb950", "isVid": false, "url": "assets/0100-psy_p1.webp"}], "psy_p2": [{"uid": "item_1792062919638_dcild", "name": "《蝶魄》-关卡白盒", "isVid": false, "url": "assets/0101-psy_p2.webp"}, {"uid": "item_1792062972377_y51a0", "name": "微信图片_20251111144117_2497_13", "isVid": false, "url": "assets/0102-psy_p2.webp"}], "psy_p3": [{"uid": "item_1792063226923_7kl2f", "name": "unnamed (54)", "isVid": false, "url": "assets/0103-psy_p3.webp"}, {"uid": "item_1792063234682_8530i", "name": "unnamed (57)", "isVid": false, "url": "assets/0104-psy_p3.webp"}, {"uid": "item_1792063243044_4bos7", "name": "unnamed (67)", "isVid": false, "url": "assets/0105-psy_p3.webp"}, {"uid": "item_1792063266833_d3rvx", "name": "unnamed (63)", "isVid": false, "url": "assets/0106-psy_p3.webp"}, {"uid": "item_1792063292232_rqjoq", "name": "unnamed (66)", "isVid": false, "url": "assets/0107-psy_p3.webp"}], "psy_p4": [{"uid": "item_1792063362135_l2yu0", "name": "Gemini_Generated_Image_yezjckyezjckyezj", "isVid": false, "url": "assets/0108-psy_p4.webp"}, {"uid": "item_1792063371300_d7vpu", "name": "Gemini_Generated_Image_1xwf7h1xwf7h1xwf", "isVid": false, "url": "assets/0109-psy_p4.webp"}], "psy_v1": [{"uid": "item_1792062785283_nhk33", "name": "《蝶魄》-视频展示", "isVid": true, "url": "assets/0110-psy_v1.mp4", "poster": "assets/0110-psy_v1-poster.webp", "duration": 273.96}], "st_b1": [{"uid": "item_1792063552913_e4g4m", "name": "展板4游戏宣传片设计展板-星光坠落之时-胡思羽、吴沂蔚", "isVid": false, "url": "assets/0111-st_b1.webp"}], "st_b2": [{"uid": "item_1792063578799_pu91j", "name": "展板5游戏交互设计展板-星光坠落之时-胡思羽、吴沂蔚", "isVid": false, "url": "assets/0112-st_b2.webp"}], "st_b3": [{"uid": "item_1792063519523_tbvou", "name": "展板6游戏全链设计海报-星光坠落之时-胡思羽、吴沂蔚", "isVid": false, "url": "assets/0113-st_b3.webp"}], "st_hifi_all": [{"uid": "item_1792063599034_biuaf", "name": "17.高保真UI界面1", "isVid": false, "url": "assets/0114-st_hifi_all.webp"}, {"uid": "item_1792063599035_79voo", "name": "17.高保真UI界面2", "isVid": false, "url": "assets/0115-st_hifi_all.webp"}, {"uid": "item_1792063599035_538er", "name": "17.高保真UI界面3", "isVid": false, "url": "assets/0116-st_hifi_all.webp"}, {"uid": "item_1792063599036_jt3zs", "name": "17.高保真UI界面4", "isVid": false, "url": "assets/0117-st_hifi_all.webp"}, {"uid": "item_1792063599036_rz9wu", "name": "17.高保真UI界面5", "isVid": false, "url": "assets/0118-st_hifi_all.webp"}, {"uid": "item_1792063599038_5dlwu", "name": "17.高保真UI界面6", "isVid": false, "url": "assets/0119-st_hifi_all.webp"}, {"uid": "item_1792063599038_xe5dr", "name": "17.高保真UI界面7", "isVid": false, "url": "assets/0120-st_hifi_all.webp"}], "st_p1": [{"uid": "item_1792063617283_45ojb", "name": "15.资产原画1", "isVid": false, "url": "assets/0121-st_p1.webp"}, {"uid": "item_1792063617283_zie60", "name": "15.资产原画2", "isVid": false, "url": "assets/0122-st_p1.webp"}, {"uid": "item_1792063617284_fht6n", "name": "15.资产原画3", "isVid": false, "url": "assets/0123-st_p1.webp"}, {"uid": "item_1792063617284_8ksu8", "name": "15.资产原画4", "isVid": false, "url": "assets/0124-st_p1.webp"}, {"uid": "item_1792063617284_pnanp", "name": "15.资产原画5", "isVid": false, "url": "assets/0125-st_p1.webp"}, {"uid": "item_1792063617285_8pr7n", "name": "15.资产原画6", "isVid": false, "url": "assets/0126-st_p1.webp"}, {"uid": "item_1792063617285_32bix", "name": "15.资产原画7", "isVid": false, "url": "assets/0127-st_p1.webp"}, {"uid": "item_1792063617285_w29rq", "name": "15.资产原画8", "isVid": false, "url": "assets/0128-st_p1.webp"}, {"uid": "item_1792063617285_hogg6", "name": "15.资产原画9", "isVid": false, "url": "assets/0129-st_p1.webp"}], "st_p2": [{"uid": "item_1792063637567_esnd9", "name": "14.场景原画2", "isVid": false, "url": "assets/0130-st_p2.webp"}, {"uid": "item_1792063637568_f05gj", "name": "14.场景原画3", "isVid": false, "url": "assets/0131-st_p2.webp"}, {"uid": "item_1792063637568_80zfd", "name": "14.场景原画4", "isVid": false, "url": "assets/0132-st_p2.webp"}, {"uid": "item_1792063637568_yhbox", "name": "14.场景原画5", "isVid": false, "url": "assets/0133-st_p2.webp"}, {"uid": "item_1792063637568_0ptzk", "name": "14.场景原画6", "isVid": false, "url": "assets/0134-st_p2.webp"}, {"uid": "item_1792063637569_q42fc", "name": "14.场景原画7", "isVid": false, "url": "assets/0135-st_p2.webp"}, {"uid": "item_1792063637569_oktg7", "name": "14.场景原画8", "isVid": false, "url": "assets/0136-st_p2.webp"}, {"uid": "item_1792063637570_408su", "name": "14.场景原画10", "isVid": false, "url": "assets/0137-st_p2.webp"}, {"uid": "item_1792063637570_tzz94", "name": "14.场景原画11", "isVid": false, "url": "assets/0138-st_p2.webp"}], "st_v1": [{"uid": "item_1792063451283_sssxx", "name": "视频-星光坠落之时-胡思羽、吴沂蔚", "isVid": true, "url": "assets/0139-st_v1.mp4", "poster": "assets/0139-st_v1-poster.webp", "duration": 264.88}], "xx_b1": [{"uid": "item_1792063714052_ej0cq", "name": "《湖心梦雪》AIGC动画", "isVid": false, "url": "assets/0140-xx_b1.webp"}], "xx_p1": [{"uid": "item_1792063777097_swhjb", "name": "王阳明", "isVid": false, "url": "assets/0141-xx_p1.webp"}, {"uid": "item_1792063777097_nx01i", "name": "张岱", "isVid": false, "url": "assets/0142-xx_p1.webp"}, {"uid": "item_1792063777098_idxk6", "name": "郑和", "isVid": false, "url": "assets/0143-xx_p1.webp"}, {"uid": "item_1792063887226_bl45k", "name": "63021995-8713-479e-84ff-6d19058538be", "isVid": false, "url": "assets/0144-xx_p1.webp"}, {"uid": "item_1792063892878_1zcpm", "name": "51f34f1f-1d99-4e00-b784-4a4174ac43ee", "isVid": false, "url": "assets/0145-xx_p1.webp"}, {"uid": "item_1792063913547_dipbh", "name": "01", "isVid": false, "url": "assets/0146-xx_p1.webp"}, {"uid": "item_1792063925606_xfbxi", "name": "14", "isVid": false, "url": "assets/0147-xx_p1.webp"}, {"uid": "item_1792063932084_9sz7c", "name": "01", "isVid": false, "url": "assets/0148-xx_p1.webp"}], "xx_p2": [{"uid": "item_1792063794085_489m5", "name": "05", "isVid": false, "url": "assets/0149-xx_p2.webp"}, {"uid": "item_1792063794085_1b8sc", "name": "06", "isVid": false, "url": "assets/0150-xx_p2.webp"}, {"uid": "item_1792063794086_on6em", "name": "08", "isVid": false, "url": "assets/0151-xx_p2.webp"}, {"uid": "item_1792063809329_bm4pm", "name": "01", "isVid": false, "url": "assets/0152-xx_p2.webp"}, {"uid": "item_1792063809330_46jpa", "name": "02", "isVid": false, "url": "assets/0153-xx_p2.webp"}, {"uid": "item_1792063809330_mvxgl", "name": "03", "isVid": false, "url": "assets/0154-xx_p2.webp"}, {"uid": "item_1792063941924_nck7c", "name": "05", "isVid": false, "url": "assets/0155-xx_p2.webp"}, {"uid": "item_1792063946380_c5u6w", "name": "09", "isVid": false, "url": "assets/0156-xx_p2.webp"}], "xx_v1": [{"uid": "item_1792063689689_dmlid", "name": "《湖心梦雪》AIGC动画", "isVid": true, "url": "assets/0157-xx_v1.mp4", "poster": "assets/0157-xx_v1-poster.webp", "duration": 172.07}], "ym_v1": [{"uid": "item_1792064018186_vz2dp", "name": "《忆梦园》", "isVid": true, "url": "assets/0158-ym_v1.mp4", "poster": "assets/0158-ym_v1-poster.webp", "duration": 162.32999999999998}]}, "extras": {}, "covers": {}};</script>
+</head>
+<body data-theme="glacier" class="locked-mode">
+
+  <canvas id="fx-canvas"></canvas>
+  <div class="spotlight"></div>
+  <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)" />
+
+  <button class="btn zoom-back" id="zoom-back" onclick="resetCam()">← 返回全景</button>
+
+  <!-- 右上角访客导航：纯净无任何编辑按钮，所有访客均为只读观看权限 -->
+  <div class="top-tools">
+    <button class="btn red" id="door-btn" onclick="toggleDoors()">打开柜门</button>
+    <button class="btn" onclick="toggleTheme()">切换配色</button>
+  </div>
+
+  <!-- 仅在你电脑本地 (file://) 下可见的站长打包工具条；导出的公开版中会自动彻底移除！ -->
+  <div class="owner-export-dock" id="owner-dock">
+    <span class="mono">🛠️ 本地站长工具 (仅你本地可见，导出后自动消失)：</span>
+    <button class="btn" id="owner-lock-btn" onclick="toggleLockMode()">🔒 当前已全站锁定 (点击临时解锁微调)</button>
+    <button class="btn active" id="export-public-btn" onclick="exportStandalonePublicHTML()">保存上线文件夹（视频逐个保存）</button>
+  </div>
+
+  <main class="stage" id="stage" onclick="if(event.target.id==='stage') resetCam()">
+    <div class="cam-rig" id="cam-rig">
+      <div class="cabinet" id="cabinet">
+
+        <!-- 左门翼：个人照片工牌 + 立体翻页技能盒 -->
+        <aside class="wing left" onclick="event.stopPropagation()">
+          <div class="close-strip" onclick="toggleDoors(event)">← 合上柜门</div>
+
+          <div class="box-card mod" id="mod-id" onclick="focusMod(this, 1.6, event)">
+            <div style="display:flex; justify-content:space-between; border-bottom:1.5px solid var(--line); padding-bottom:4px; margin-bottom:8px;">
+              <span class="mono ed" data-k="id_header" style="font-size:0.6rem; font-weight:600;">BASIC INFORMATION</span>
+              <span class="mono" style="font-size:0.52rem; background:var(--red); color:#FFF; padding:1px 5px;">ID</span>
+            </div>
+            <div style="display:grid; grid-template-columns:74px 1fr; gap:0.65rem; align-items:center;">
+              <div class="photo-frame" onclick="handleAvatarClick(event)">
+                <img id="wing-avatar" src="" alt="照片" style="display:none;" />
+                <div id="wing-avatar-ph" class="mono" style="font-size:0.5rem; text-align:center; color:var(--red); font-weight:700;">个人照片</div>
+              </div>
+              <div>
+                <div class="serif ed" data-k="name" style="font-weight:700; font-size:1.1rem;">胡思羽</div>
+                <div class="mono ed" data-k="role" style="font-size:0.58rem; color:var(--red); font-weight:600; margin:2px 0;">AIGC内容创作 / 游戏视觉 / 影像叙事</div>
+                <div class="ed" data-k="school" style="font-size:0.62rem; color:var(--sec); margin-bottom:6px;">数字媒体艺术</div>
+                <div style="height:8px; background:repeating-linear-gradient(90deg, var(--line) 0 2px, transparent 2px 4px, var(--line) 4px 5px, transparent 5px 8px);"></div>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:8px; padding-top:6px; border-top:1px dashed var(--soft);">
+              <button class="btn edit-only-ctrl" style="padding:2px 6px; font-size:0.56rem;" onclick="triggerAvatar(event)">+ 换照片</button>
+              <button class="btn red" style="padding:2px 8px; font-size:0.58rem; margin-left:auto;" onclick="openIdModal(event)">个人档案 →</button>
+            </div>
+          </div>
+
+          <div class="box-card mod" id="mod-skill" onclick="focusMod(this, 1.6, event)">
+            <div class="flip-wrap" onclick="cycleSkills(event)">
+              <div class="peek p1" id="pk1"><span>03 核心能力</span><span>MATRIX</span></div>
+              <div class="peek p2" id="pk2"><span>02 设计软件</span><span>TOOLS</span></div>
+              <div class="flip-main" id="sk-card">
+                <div>
+                  <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,0.2); padding-bottom:3px;">
+                    <span class="mono" id="sk-code" style="font-size:0.55rem; font-weight:700;">01 / 03 SKILLS</span>
+                    <span class="mono" style="font-size:0.52rem;">点击翻页 ↻</span>
+                  </div>
+                  <div class="serif ed" data-k="sk_h" id="sk-title" style="font-weight:700; font-size:0.9rem; margin-top:4px;">个人技能 · AIGC全链路创作</div>
+                  <div class="tags" id="sk-tags">
+                    <span class="tag ed" data-k="t1">AIGC图像与视频生成</span>
+                    <span class="tag ed" data-k="t2">游戏世界观与高保真UI</span>
+                    <span class="tag ed" data-k="t3">角色三视图与一致控制</span>
+                    <span class="tag ed" data-k="t4">短剧与动画分镜叙事</span>
+                  </div>
+                </div>
+                <div class="mono ed" data-k="sk_f" id="sk-foot" style="font-size:0.54rem;">涵盖 7 组完整游戏视觉、动画短片与短剧创作</div>
+              </div>
+              <div class="tray-lip mono">SKILL & TOOLKIT</div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- 中央主柜（顺序：新雪、后街、苏棠短剧、忆梦园、蝶魄、星光坠落之时(三体改编)、灯火可亲） -->
+        <section class="vault">
+          <div class="vault-top-beam mono">
+            <span class="ed" data-k="beam_title">HU SIYU // 07 SELECTED WORKS VAULT</span>
+            <div class="beam-gadgets">
+              <div class="gadget-pill" onclick="rotateDimmer(event)">
+                <span class="dial-dot"></span>
+                <span id="dim-txt">聚光灯: 标准</span>
+              </div>
+              <div class="gadget-pill" onclick="playChime(event)">
+                <span>♪ 音轮</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 柜门闭合状态：完整保留左扉、右扉文字与底部提示 -->
+          <div class="front-doors" onclick="toggleDoors(event)">
+            <div class="door-leaf l">
+              <div class="louvers"><i></i><i></i><i></i><i></i></div>
+              <div class="front-plate-card">
+                <div class="mono ed" data-k="door_l_code_v2" style="font-size:0.58rem; color:var(--muted);">ARCHIVE 01 - 04</div>
+                <div class="serif ed" data-k="door_l_title_v2" style="font-weight:700; font-size:1.05rem; margin-top:3px;">创作档案 · 左扉</div>
+                <div class="mono ed" data-k="door_l_sub_v2" style="font-size:0.56rem; color:var(--red); margin-top:6px; line-height:1.6;">新雪 · 后街<br>苏棠短剧 · 忆梦园</div>
+              </div>
+              <div class="mono ed" data-k="door_l_hint" style="font-size:0.6rem; text-align:center; color:var(--sec);">[单击推开左门]</div>
+            </div>
+
+            <div class="door-leaf r">
+              <div class="louvers"><i></i><i></i><i></i><i></i></div>
+              <div class="front-plate-card">
+                <div class="mono ed" data-k="door_r_code_v2" style="font-size:0.58rem; color:var(--muted);">ARCHIVE 05 - 07</div>
+                <div class="serif ed" data-k="door_r_title_v2" style="font-weight:700; font-size:1.05rem; margin-top:3px;">创作档案 · 右扉</div>
+                <div class="mono ed" data-k="door_r_sub_v2" style="font-size:0.56rem; color:var(--navy); margin-top:6px; line-height:1.6;">蝶魄 · 灯火可亲<br>星光坠落之时(三体改编)</div>
+              </div>
+              <div class="mono ed" data-k="door_r_hint" style="font-size:0.6rem; text-align:center; color:var(--sec);">[单击推开右门]</div>
+            </div>
+
+            <div class="open-latch" title="点击旋转开柜">
+              <span class="mono" style="font-size:0.6rem; font-weight:700;">OPEN</span>
+              <span class="serif ed" data-k="latch_txt" style="font-size:0.75rem; font-weight:700; color:var(--red); margin-top:2px;">旋转开柜</span>
+            </div>
+          </div>
+
+          <!-- 敞开态内部：顶部切换 01-07 标签 + 下方唯一整体点击卡片 -->
+          <div class="vault-body">
+            <div class="console mod" id="mod-console">
+              <div class="tabs-row" id="proj-tabs"></div>
+              <div class="work-hero-card" id="hero-card" onclick="handleHeroCardClick(event)">
+                <div class="work-row">
+                  <div class="thumb-box" id="hc-thumb-box"></div>
+                  <div>
+                    <div class="mono" id="hc-code" style="font-size:0.62rem; color:var(--red); font-weight:700;"></div>
+                    <h3 class="serif" id="hc-title" style="font-size:1.38rem; font-weight:700; margin:4px 0 6px;"></h3>
+                    <p id="hc-sub" style="font-size:0.74rem; color:var(--sec); line-height:1.55;"></p>
+                    <div class="pills" id="hc-pills"></div>
+                  </div>
+                </div>
+                <div class="pull-bar">
+                  <span class="serif" id="hc-action" style="font-size:0.94rem; font-weight:700; color:#2B1B10;"></span>
+                  <div class="ring"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右门翼：三联证书相框 + 联络名片 -->
+        <aside class="wing right" onclick="event.stopPropagation()">
+          <div class="close-strip" onclick="toggleDoors(event)">合上柜门 →</div>
+
+          <div class="box-card mod" id="mod-cert" onclick="focusMod(this, 1.6, event)">
+            <div class="mono ed" data-k="cert_header" style="font-size:0.58rem; font-weight:600;">CERTIFICATES // 获奖证明</div>
+            <div class="cert-grid">
+              <div class="cert-item" onclick="openCert(0, event)">
+                <div class="cert-prev" id="cp-0">
+                  <svg width="60" height="68" viewBox="0 0 64 72"><rect x="4" y="4" width="56" height="64" fill="#FCF5E2" stroke="#A99563" stroke-width="2"/><text x="32" y="42" text-anchor="middle" font-size="13" font-weight="bold" fill="#A42423">铜 奖</text></svg>
+                </div>
+                <div class="mono ed" data-k="cert_t0" style="font-size:0.52rem; font-weight:600;">东方创意之星</div>
+              </div>
+              <div class="cert-item" onclick="openCert(1, event)">
+                <div class="cert-prev" id="cp-1">
+                  <svg width="60" height="68" viewBox="0 0 64 72"><polygon points="18,8 44,12 44,62 18,66" fill="#16A34A"/><text x="31" y="26" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">三</text><text x="31" y="40" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">等</text><text x="31" y="54" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFF">奖</text></svg>
+                </div>
+                <div class="mono ed" data-k="cert_t1" style="font-size:0.52rem; font-weight:600;">HKDADC三等</div>
+              </div>
+              <div class="cert-item" onclick="openCert(2, event)">
+                <div class="cert-prev" id="cp-2">
+                  <svg width="60" height="68" viewBox="0 0 64 72"><rect x="4" y="8" width="56" height="56" fill="#FFF" stroke="#C8D4E3" stroke-width="1.5"/><circle cx="32" cy="24" r="6" fill="#A42423"/><text x="32" y="42" text-anchor="middle" font-size="10" font-family="monospace" font-weight="bold" fill="#162A46">UKDA</text></svg>
+                </div>
+                <div class="mono ed" data-k="cert_t2" style="font-size:0.52rem; font-weight:600;">UKDA提名奖</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="box-card mod" id="mod-contact" onclick="focusMod(this, 1.6, event)">
+            <div class="serif ed" data-k="slogan" style="font-weight:700; font-size:0.95rem; margin-bottom:6px;">下一份故事，从这里开始。</div>
+            <div class="mono" style="font-size:0.62rem; line-height:1.8; color:var(--sec); background:var(--sub); padding:0.5rem 0.65rem; border:1px solid var(--soft);">
+              <div>TEL: <strong class="ed" data-k="phone" style="color:var(--ink);">191 8130 6040</strong></div>
+              <div>MAIL: <strong class="ed" data-k="email" style="color:var(--ink);">2862960645@qq.com</strong></div>
+              <div>WECHAT: <strong class="ed" data-k="wechat" style="color:var(--ink);">Y140042881</strong></div>
+            </div>
+            <button class="btn red" style="width:100%; margin-top:8px; padding:4px 0; font-size:0.6rem;" id="copy-btn" onclick="copyContact(event)">复制联系方式</button>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- 弹窗 A：个人档案详情 -->
+  <div class="mask" id="id-modal" onclick="closeModals()">
+    <div class="dialog sm" style="padding:1.5rem;" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--line); padding-bottom:0.7rem; margin-bottom:1.2rem;">
+        <strong class="mono" style="font-size:0.85rem;">BASIC INFORMATION // 个人档案</strong>
+        <button class="btn red" onclick="closeModals()">关闭</button>
+      </div>
+      <div class="id-grid" style="display:grid; grid-template-columns:170px 1fr; gap:1.3rem; align-items:start;">
+        <div style="border:2px solid var(--line); background:var(--outer); padding:0.6rem; text-align:center;">
+          <div style="width:100%; aspect-ratio:3/4; background:var(--card); border:1.5px solid var(--line); overflow:hidden; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="handleAvatarClick(event)">
+            <img id="modal-avatar" src="" alt="照片" style="width:100%; height:100%; object-fit:cover; display:none;" />
+            <span id="modal-avatar-ph" class="mono" style="font-size:0.62rem; color:var(--red); font-weight:700;">个人照片</span>
+          </div>
+          <button class="btn red edit-only-ctrl" style="width:100%; margin-top:0.5rem; font-size:0.62rem; padding:0.28rem 0;" onclick="triggerAvatar(event)">更换照片</button>
+        </div>
+        <div>
+          <h2 class="serif ed" data-k="name" style="font-size:1.8rem; margin-bottom:0.2rem;">胡思羽</h2>
+          <p class="mono ed" data-k="role" style="font-size:0.75rem; color:var(--red); font-weight:600; margin-bottom:0.5rem;">AIGC 内容创作 / 游戏视觉 / 影像叙事</p>
+          <p class="ed" data-k="bio_intro" style="font-size:0.82rem; color:var(--sec); margin-bottom:0.9rem;">数字媒体艺术 · 专注于从概念草图、资产设定到动态镜头的全链路视觉创作。</p>
+          <div style="background:var(--sub); padding:0.75rem; border:1px solid var(--soft); font-size:0.8rem; line-height:1.8; margin-bottom:0.85rem;">
+            <div>TEL: <strong class="mono ed" data-k="phone">191 8130 6040</strong></div>
+            <div>EMAIL: <strong class="mono ed" data-k="email">2862960645@qq.com</strong></div>
+            <div>WECHAT: <strong class="mono ed" data-k="wechat">Y140042881</strong></div>
+          </div>
+          <div style="background:var(--sub); border:1.5px solid var(--line); padding:0.75rem; font-size:0.76rem;">
+            <div class="ed" data-k="bio_skills" style="line-height:1.65; color:var(--sec);">
+              提出概念（主题、故事与用户问题） · 确立画面（人物、空间与统一色彩） · 生成镜头（Midjourney / 即梦AI / 可灵 / 三维动态分镜） · 完成呈现（展板 / 高保真游戏界面 / 可玩 Demo）
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 弹窗 B：获奖证明图片灯箱 -->
+  <div class="mask" id="cert-modal" onclick="closeModals()">
+    <div class="dialog sm" onclick="event.stopPropagation()">
+      <div class="d-head">
+        <strong class="serif">获奖证明</strong>
+        <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+          <button class="btn" id="ct-0" onclick="switchCert(0)">01 东方创意之星</button>
+          <button class="btn" id="ct-1" onclick="switchCert(1)">02 HKDADC</button>
+          <button class="btn" id="ct-2" onclick="switchCert(2)">03 UKDA</button>
+          <button class="btn red" onclick="closeModals()">关闭</button>
+        </div>
+      </div>
+      <div id="cert-stage" style="width:100%; height:380px; background:#141A24; display:flex; align-items:center; justify-content:center; padding:1rem;"></div>
+      <div style="padding:0.8rem 1.2rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+        <strong class="serif ed" id="cert-title" style="font-size:0.92rem;"></strong>
+        <label class="btn red edit-only-ctrl" style="font-size:0.68rem;">
+          + 替换证书原图
+          <input type="file" accept="image/*" style="display:none" onchange="uploadCertImg(this)" />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 弹窗 C：7大作品详情室 -->
+  <div class="mask" id="work-modal" onclick="closeModals()">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="d-head">
+        <strong class="serif" id="wm-title" style="font-size:1.15rem;"></strong>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+          <button class="btn" onclick="stepProject(-1)">← 上一作品</button>
+          <button class="btn" onclick="stepProject(1)">下一作品 →</button>
+          <button class="btn red" onclick="closeModals()">关闭</button>
+        </div>
+      </div>
+      <div class="d-bar">
+        <div style="display:flex; gap:0.45rem;">
+          <button class="btn red" id="bm-screen" onclick="setMode('screen')">成果展示（视频 / 展板 / 高保真）</button>
+          <button class="btn" id="bm-desk" onclick="setMode('desk')">过程性展示</button>
+        </div>
+        <button class="btn" id="fit-btn" onclick="toggleFit()">画幅：完整适应 (点击切换铺满)</button>
+      </div>
+      <div class="d-body">
+        <div class="intro-card">
+          <div style="flex:1; min-width:260px;">
+            <h3 class="serif" id="wm-heading" style="font-size:1.28rem; margin-bottom:0.3rem;"></h3>
+            <p id="wm-lead" style="font-size:0.84rem; color:var(--sec); line-height:1.65;"></p>
+          </div>
+          <span class="mono" id="wm-role" style="font-size:0.66rem; color:var(--red); font-weight:600;"></span>
+        </div>
+        <div id="wm-stage" style="display:flex; flex-direction:column; gap:1.35rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全屏高清图片检视灯箱 -->
+  <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+    <img id="lb-img" src="" alt="大图" />
+  </div>
+
+  <script>
+function portfolioAttr(value) {
+  return String(value || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function portfolioVideo(item) {
+  const label = portfolioAttr(item.name || '作品视频');
+  return `<div class="portfolio-video" onclick="event.stopPropagation()">
+    <video data-hls="${portfolioAttr(item.url)}" poster="${portfolioAttr(item.poster)}" controls playsinline webkit-playsinline x5-playsinline preload="none" aria-label="${label}"></video>
+    <button class="portfolio-play" type="button" onclick="startPortfolioVideo(this,event)" aria-label="播放${label}"><span>▶</span> 播放视频</button>
+    <p class="portfolio-video-error" role="status" hidden></p>
+  </div>`;
+}
+async function startPortfolioVideo(button, event) {
+  event?.stopPropagation();
+  const wrapper = button.closest('.portfolio-video');
+  const video = wrapper.querySelector('video');
+  const message = wrapper.querySelector('.portfolio-video-error');
+  const url = video.dataset.hls;
+  document.querySelectorAll('video').forEach(other => { if (other !== video) other.pause(); });
+  button.hidden = true;
+  message.hidden = true;
+  const failure = text => { message.textContent = text; message.hidden = false; button.hidden = false; };
+  if (!video.dataset.initialized) {
+    if (/\.mp4(?:[?#]|$)/i.test(url)) {
+      video.src = url;
+      video.dataset.initialized = 'mp4';
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;
+      video.dataset.initialized = 'native';
+    } else if (window.Hls?.isSupported()) {
+      const hls = new Hls({ maxBufferLength: 18, maxMaxBufferLength: 36, backBufferLength: 12 });
+      video.__portfolioHls = hls;
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        if (!data.fatal) return;
+        hls.destroy();
+        video.__portfolioHls = null;
+        delete video.dataset.initialized;
+        failure('视频加载未完成，请检查网络后再次点击播放。');
+      });
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      video.dataset.initialized = 'hls';
+    } else {
+      failure('当前浏览器不支持此视频格式，请使用新版 Chrome、Edge 或 Safari。');
+      return;
+    }
+  }
+  try { await video.play(); }
+  catch (error) {
+    // Some browsers end user activation before the streaming manifest is ready.
+    if (error?.name === 'NotAllowedError') failure('视频已就绪，请再次点击播放。');
+    else if (!video.__portfolioHls && video.error) failure('视频加载失败，请检查网络后再次点击播放。');
+  }
+}
+new MutationObserver(records => {
+  for (const record of records) for (const node of record.removedNodes) {
+    if (node.nodeType !== 1) continue;
+    const videos = [...(node.matches('video') ? [node] : []), ...node.querySelectorAll('video')];
+    videos.forEach(video => { video.pause(); video.__portfolioHls?.destroy(); video.__portfolioHls = null; });
+  }
+}).observe(document.body, { childList: true, subtree: true });
+document.addEventListener('play', event => {
+  if (event.target.tagName === 'VIDEO') document.querySelectorAll('video').forEach(video => {
+    if (video !== event.target) video.pause();
+  });
+}, true);
+
+    // ==================== 1. 7 大作品数据库 (按要求顺序：新雪、后街、苏棠短剧、忆梦园、蝶魄、星光坠落之时、灯火可亲) ====================
+    const projects = [
+      {
+        key: "xinxue", tab: "01 新雪", title: "新雪",
+        role: "前期概念 / 历史文献考据 / 动态镜头与分镜 / 成果展板",
+        sub: "改编自《湖心亭看雪》三维/AIGC短片。冷色留白统摄现实，暖色仅在炉火与金陵灯市幻梦出现。",
+        pills: ["1 个视频展示", "1 张成品展板", "前期过程文件"], hasProc: true,
+        screen: {
+          h: "《新雪》三维/AIGC 动画短片成片与成果展板", l: "从孤寂的雪夜进入亭中对饮，以一杯酒开启故国幻梦：",
+          secs: [{ t: "成品视频与成果展板", g: "g-2", slots: [
+            { id: "xx_v1", vid: true, tag: "《新雪》成品视频" }, { id: "xx_b1", tag: "《新雪》成果展板" }
+          ]}]
+        },
+        desk: {
+          h: "《新雪》前期过程文件展示", l: "历史文献三线索、角色场景基准与 00:00-03:00 四段动态分镜规划：",
+          secs: [{ t: "前期过程文件展示", g: "g-2", multi: "xx_ep", slots: [
+            { id: "xx_p1", tag: "文本、空间与历史文献线索" },
+            { id: "xx_p2", tag: "四段叙事动态分镜与角色场景试稿" },
+            { id: "xx_p3", tag: "角色基准图与场景试稿" },
+            { id: "xx_p4", tag: "分镜剪辑记录表" }
+          ]}]
+        }
+      },
+      {
+        key: "houjie", tab: "02 后街", title: "后街 · Backstreet",
+        role: "街道空间氛围设定 / 冷暖光影叙事 / 动态视频生成",
+        sub: "雨夜老街场景氛围与光影叙事。用湿润青石板、古树旅人背影与清晨锅灶暖光建立生活气息。",
+        pills: ["成品视频展示", "过程性展示"], hasProc: true,
+        screen: {
+          h: "《后街》成品视频展示", l: "用街道、屋檐与灯光建立短片的生活气息：",
+          secs: [{ t: "成品视频展示", g: "g-1", multi: "hj_ev", slots: [
+            { id: "hj_v1", vid: true, tag: "《后街》成品视频" }
+          ]}]
+        },
+        desk: {
+          h: "《后街》过程性展示", l: "雨夜青石板冷调基准、参天古树旅人尺度与清晨灶台暖光转折：",
+          secs: [{ t: "过程性展示", g: "g-1", multi: "hj_ep", slots: [
+            { id: "hj_p_all", tag: "《后街》环境细节与冷暖光影过程性展示" },
+            { id: "hj_p1", tag: "01 / 雨街青石板冷调设定" },
+            { id: "hj_p2", tag: "02 / 古树与旅人空间尺度" },
+            { id: "hj_p3", tag: "03 / 清晨灶台热气与晨光" }
+          ]}]
+        }
+      },
+      {
+        key: "sutang", tab: "03 苏棠短剧", title: "短剧：苏棠沉冤昭雪",
+        role: "短剧角色造型 / 分镜脚本 / 试剪与AIGC成片制作",
+        sub: "AIGC 古风叙事短剧创作。包含试剪部分展示、部分成片片段展示与前期角色/分镜过程性展示。",
+        pills: ["试剪部分展示", "部分成片展示", "过程性展示"], hasProc: true,
+        screen: {
+          h: "《苏棠沉冤昭雪》试剪部分与部分成片展示", l: "包含试剪部分展示与部分成片片段展示：",
+          secs: [
+            { t: "试剪部分展示", g: "g-1", multi: "stang_trial_extra", slots: [
+              { id: "stang_trial_1", vid: true, tag: "《苏棠沉冤昭雪》试剪部分展示" }
+            ]},
+            { t: "部分成片展示", g: "g-1", multi: "stang_ec", slots: [
+              { id: "stang_c_all", vid: true, tag: "《苏棠沉冤昭雪》成片视频与剧照" },
+              { id: "stang_c1", vid: true, tag: "成片片段展示 01" },
+              { id: "stang_c2", vid: true, tag: "成片片段展示 02" }
+            ]}
+          ]
+        },
+        desk: {
+          h: "《苏棠沉冤昭雪》过程性展示", l: "前期角色造型设定、分镜脚本与场景光影推敲：",
+          secs: [{ t: "过程性展示", g: "g-2", multi: "stang_ep", slots: [
+            { id: "stang_p1", tag: "角色造型、服饰设定与场景推敲" },
+            { id: "stang_p2", tag: "短剧分镜脚本与动态镜头测试" },
+            { id: "stang_p3", tag: "场景与光影推敲" },
+            { id: "stang_p4", tag: "动态镜头生成测试" }
+          ]}]
+        }
+      },
+      {
+        key: "yimeng", tab: "04 忆梦园", title: "忆梦园",
+        role: "AIGC 视觉风格设定 / 动态镜头生成 / 视频成品制作",
+        sub: "AIGC 影像叙事作品。以细腻的视听语言与光影构建梦境叙事空间，呈现视频成品成果。",
+        pills: ["视频成品成果展示"], hasProc: false,
+        screen: {
+          h: "《忆梦园》视频成品成果展示", l: "AIGC 影像叙事与动态镜头成品展示：",
+          secs: [{ t: "视频成品展示", g: "g-1", multi: "ym_ev", slots: [
+            { id: "ym_v1", vid: true, tag: "《忆梦园》视频成品成果" }
+          ]}]
+        },
+        desk: { h: "", l: "", secs: [] }
+      },
+      {
+        key: "psyche", tab: "05 蝶魄", title: "蝶魄 · Psyche",
+        role: "概念提出 / 整体美术风格 / 透明图层资产 / 4张展板设计",
+        sub: "第一视角叙事驱动型互动剧情游戏。以场景草图建立梁祝叙事空间，统一闺阁与草桥的人物尺度与透明图层素材。",
+        pills: ["1 个视频展示", "4 张成品展板", "过程素材"], hasProc: true,
+        screen: {
+          h: "《蝶魄》成品视频与四联成果展板", l: "第一视角叙事互动游戏视觉成果展示：",
+          secs: [
+            { t: "成品视频展示", g: "g-1", slots: [{ id: "psy_v1", vid: true, tag: "《蝶魄》成品视频" }] },
+            { t: "成品展板展示", g: "g-2", board: true, dist: true, multi: "psy_eb", slots: [
+              { id: "psy_b1", tag: "蝶魄 · 展板 01" }, { id: "psy_b2", tag: "蝶魄 · 展板 02" },
+              { id: "psy_b3", tag: "蝶魄 · 展板 03" }, { id: "psy_b4", tag: "蝶魄 · 展板 04" }
+            ]}
+          ]
+        },
+        desk: {
+          h: "《蝶魄》空间舆图草图与透明图层素材", l: "前期空间舆图草图、闺阁与草桥线稿对照及六件独立透明图层素材：",
+          secs: [{ t: "前期草图与透明图层资产", g: "g-2", multi: "psy_ep", slots: [
+            { id: "psy_p1", tag: "空间节点舆图草图" },
+            { id: "psy_p2", tag: "闺阁 vs 草桥 室内外线稿对照" },
+            { id: "psy_p3", tag: "六件独立透明图层素材" },
+            { id: "psy_p4", tag: "室内外合成场景对照" }
+          ]}]
+        }
+      },
+      {
+        key: "santi", tab: "06 星光坠落之时", title: "星光坠落之时（三体改编）",
+        role: "概念与画风 / 角色与道具原画 / 高保真 UI / 3张展板设计",
+        sub: "《三体一》游戏改编视觉与 Demo。涵盖角色三视图、7件叙事道具、多张高保真界面与 3 张全链展板。",
+        pills: ["1 个视频展示", "3 张成品展板", "多张高保真展示"], hasProc: true,
+        screen: {
+          h: "《星光坠落之时（三体改编）》视频、三联展板与高保真界面展示", l: "基于《三体一》危机设定提炼角色、场景与高保真界面的视觉规则：",
+          secs: [
+            { t: "视频展示", g: "g-1", slots: [{ id: "st_v1", vid: true, tag: "《星光坠落之时》宣传片 / Demo 视频" }] },
+            { t: "成品展板展示", g: "g-3", board: true, dist: true, slots: [
+              { id: "st_b1", tag: "展板 01 // 宣传片设计" }, { id: "st_b2", tag: "展板 02 // 交互设计" }, { id: "st_b3", tag: "展板 03 // 全链设计" }
+            ]},
+            { t: "高保真界面展示", g: "g-1", multi: "st_eh", slots: [
+              { id: "st_hifi_all", tag: "高保真界面展示图集" },
+              { id: "st_h1", tag: "高保真展示 01" }, { id: "st_h2", tag: "高保真展示 02" },
+              { id: "st_h3", tag: "高保真展示 03" }, { id: "st_h4", tag: "高保真展示 04" }
+            ]}
+          ]
+        },
+        desk: {
+          h: "《星光坠落之时》角色三视图与七件叙事道具", l: "在同一灰度和轮廓规则下展开四位角色设定，并分离独立叙事道具原画：",
+          secs: [{ t: "角色设定与叙事道具原画", g: "g-2", multi: "st_ep", slots: [
+            { id: "st_p1", tag: "四立场角色肖像 & 丁仪三视图设定表" },
+            { id: "st_p2", tag: "七件独立叙事道具原画" }
+          ]}]
+        }
+      },
+      {
+        key: "denghuo", tab: "07 灯火可亲", title: "灯火可亲",
+        role: "节日游戏视觉概念 / 多张高保真界面 / 3张成品展板",
+        sub: "节日游戏视觉与 AIGC 高保真界面。以古典灯笼与画轴轮廓建立节日识别，用发光暖色提示视线。",
+        pills: ["3 张成品展板", "多张高保真界面展示"], hasProc: true,
+        screen: {
+          h: "《灯火可亲》三联成品展板与高保真界面展示", l: "以灯的形态组织节日情绪，用暖色提示玩家视线：",
+          secs: [
+            { t: "成品展板展示", g: "g-3", board: true, dist: true, slots: [
+              { id: "dh_b1", tag: "灯火可亲 · 展板 01" }, { id: "dh_b2", tag: "灯火可亲 · 展板 02" }, { id: "dh_b3", tag: "灯火可亲 · 展板 03" }
+            ]},
+            { t: "高保真界面展示", g: "g-1", multi: "dh_eh", slots: [
+              { id: "dh_hifi_all", tag: "《灯火可亲》高保真界面展示图集" },
+              { id: "dh_h1", tag: "高保真界面 01" }, { id: "dh_h2", tag: "高保真界面 02" },
+              { id: "dh_h3", tag: "高保真界面 03" }, { id: "dh_h4", tag: "高保真界面 04" }
+            ]}
+          ]
+        },
+        desk: {
+          h: "《灯火可亲》低保真原型与符号提取", l: "早期低保真交互线框原型与灯笼入口符号提取：",
+          secs: [{ t: "前期原型展示", g: "g-2", multi: "dh_ep", slots: [
+            { id: "dh_p1", tag: "低保真交互原型与符号提取" },
+            { id: "dh_p2", tag: "宫灯轮廓符号与暖色引导" }
+          ]}]
+        }
+      }
+    ];
+
+    // 默认处于 100% 锁定保护模式 (isLocked = true)
+    let curIdx = 0, curMode = "screen", isContain = true, isLocked = true, curCert = 0;
+    let db = null, slotItemsMap = {}, extraMap = {}, customCoverMap = {}, textMap = {};
+    window.__PORTFOLIO_DATA_READY__ = false;
+
+    // 如果是你在自己电脑本地 (file://) 打开且非导出的成品包，显示底部「一键打包导出」工具条
+    if (window.location.protocol === "file:" && !window.__IS_EXPORTED_PUBLIC_BUILD__) {
+      document.getElementById("owner-dock").classList.add("visible");
+    }
+
+    function toggleLockMode() {
+      if (window.__IS_EXPORTED_PUBLIC_BUILD__) return; // 导出的公开版永久锁死，绝不允许解锁
+      isLocked = !isLocked;
+      document.body.classList.toggle("locked-mode", isLocked);
+      document.querySelectorAll(".ed").forEach(el => {
+        el.setAttribute("contenteditable", isLocked ? "false" : "true");
+      });
+
+      const btn = document.getElementById("owner-lock-btn");
+      if (btn) {
+        btn.textContent = isLocked ? "🔒 当前已全站锁定 (点击临时解锁微调)" : "🔓 正在编辑中 (点击保存并锁定)";
+        btn.classList.toggle("active", !isLocked);
+      }
+
+      if (isLocked) saveAllCustomText();
+      renderTabs();
+      if (document.getElementById("work-modal").classList.contains("open")) {
+        renderWorkModal();
+      }
+    }
+
+    function getCustomText(key, fallback) {
+      return textMap[key] !== undefined ? textMap[key] : fallback;
+    }
+
+    function saveAllCustomText() {
+      document.querySelectorAll(".ed").forEach(el => {
+        const k = el.getAttribute("data-k");
+        if (k) textMap[k] = el.innerHTML;
+      });
+      localStorage.setItem("hsy_profile_v6", JSON.stringify(textMap));
+    }
+
+    document.addEventListener("input", e => {
+      if (isLocked) return;
+      const target = e.target.closest(".ed");
+      if (target) {
+        const k = target.getAttribute("data-k");
+        const val = target.innerHTML;
+        textMap[k] = val;
+        document.querySelectorAll(`.ed[data-k="${k}"]`).forEach(el => {
+          if (el !== target) el.innerHTML = val;
+        });
+        localStorage.setItem("hsy_profile_v6", JSON.stringify(textMap));
+      }
+    });
+
+    // ==================== 2. 获取外部主柜封面：有视频的作品自动优先用视频作为封面 ====================
+    function getProjectCover(p) {
+      if (customCoverMap[p.key]) return customCoverMap[p.key];
+      const allSecs = [...(p.screen?.secs || []), ...(p.desk?.secs || [])];
+      let firstImage = null;
+
+      for (const sec of allSecs) {
+        for (const sl of sec.slots) {
+          const arr = slotItemsMap[sl.id] || [];
+          for (const it of arr) {
+            if (it.isVid) return { url: it.poster || it.url, isVid: !it.poster, hasCustom: true };
+            if (!firstImage) firstImage = { url: it.url, isVid: false, hasCustom: true };
+          }
+        }
+        if (sec.multi) {
+          const exArr = extraMap[sec.multi] || [];
+          for (const it of exArr) {
+            if (it.isVid) return { url: it.poster || it.url, isVid: !it.poster, hasCustom: true };
+            if (!firstImage) firstImage = { url: it.url, isVid: false, hasCustom: true };
+          }
+        }
+      }
+      return firstImage || { url: "", isVid: false, hasCustom: false };
+    }
+
+    // ==================== 3. 渲染主柜标签与外部实时封面 ====================
+    function renderTabs() {
+      const editAttr = isLocked ? 'false' : 'true';
+      document.getElementById("proj-tabs").innerHTML = projects.map((p, i) =>
+        `<button class="f-tab ${i===curIdx?'active':''}" data-i="${i}" onclick="selectTab(${i}, event)">${p.tab}</button>`
+      ).join("");
+
+      const p = projects[curIdx];
+      const cov = getProjectCover(p);
+      const box = document.getElementById("hc-thumb-box");
+
+      if (cov.hasCustom) {
+        if (cov.isVid) {
+          box.innerHTML = `
+            <video src="${cov.url}" muted autoplay loop playsinline preload="metadata" onloadeddata="this.play().catch(()=>{})"></video>
+            <span class="cover-badge">▶ 视频封面</span>
+          `;
+        } else {
+          box.innerHTML = `
+            <img src="${cov.url}" alt="${p.title}" />
+            <span class="cover-badge">✓ 作品封面</span>
+          `;
+        }
+      } else {
+        box.innerHTML = `
+          <div style="text-align:center; padding:1rem; color:#D8E3F0;">
+            <div class="mono" style="font-size:0.65rem; color:var(--lime); margin-bottom:4px;">ARCHIVE 0${curIdx+1}</div>
+            <div class="serif" style="font-size:1.15rem; font-weight:700;">${getCustomText(`title_v2_${p.key}`, p.title)}</div>
+          </div>
+        `;
+      }
+
+      const codeEl = document.getElementById("hc-code");
+      codeEl.setAttribute("data-k", `code_v2_${p.key}`);
+      codeEl.className = "mono ed";
+      codeEl.setAttribute("contenteditable", editAttr);
+      codeEl.innerHTML = getCustomText(`code_v2_${p.key}`, `ARCHIVE 0${curIdx+1} / 07`);
+
+      const titleEl = document.getElementById("hc-title");
+      titleEl.setAttribute("data-k", `title_v2_${p.key}`);
+      titleEl.className = "serif ed";
+      titleEl.setAttribute("contenteditable", editAttr);
+      titleEl.innerHTML = getCustomText(`title_v2_${p.key}`, p.title);
+
+      const subEl = document.getElementById("hc-sub");
+      subEl.setAttribute("data-k", `sub_${p.key}`);
+      subEl.className = "ed";
+      subEl.setAttribute("contenteditable", editAttr);
+      subEl.innerHTML = getCustomText(`sub_${p.key}`, p.sub);
+
+      const actEl = document.getElementById("hc-action");
+      actEl.setAttribute("data-k", `act_v2_${p.key}`);
+      actEl.className = "serif ed";
+      actEl.setAttribute("contenteditable", editAttr);
+      actEl.innerHTML = getCustomText(`act_v2_${p.key}`, `点击进入《${p.title}》 →`);
+
+      document.getElementById("hc-pills").innerHTML = p.pills.map((t, i) => {
+        const pk = `pill_v2_${p.key}_${i}`;
+        return `<span class="pill ${i<2?'hi':''} ed" data-k="${pk}" contenteditable="${editAttr}">${getCustomText(pk, t)}</span>`;
+      }).join("");
+    }
+
+    function selectTab(i, e) { if(e) e.stopPropagation(); curIdx = i; renderTabs(); }
+
+    function handleHeroCardClick(e) {
+      if (!isLocked && e.target.closest(".ed")) return;
+      openProject(curIdx, "screen", e);
+    }
+
+    // ==================== 4. 柜门与镜头控制 ====================
+    const cab = document.getElementById("cabinet"), rig = document.getElementById("cam-rig"), stg = document.getElementById("stage");
+    let cx = 0, cy = 0, cs = 1, fMod = null;
+
+    function toggleDoors(e) {
+      if(e) e.stopPropagation();
+      if(!isLocked && e && e.target.closest(".ed")) return;
+      const open = cab.classList.toggle("open");
+      if(!open) resetCam();
+      document.getElementById("door-btn").textContent = open ? "合拢柜门" : "打开柜门";
+    }
+    function focusMod(el, s, e) {
+      if(e) e.stopPropagation();
+      if(!isLocked) return;
+      if(window.innerWidth <= 900) { if(el.id==="mod-id") openIdModal(e); return; }
+      if(!cab.classList.contains("open")) toggleDoors();
+      if(fMod !== el) {
+        document.querySelectorAll(".mod").forEach(m => m.classList.remove("active-mod"));
+        el.classList.add("active-mod"); cab.classList.add("focused"); fMod = el;
+        const sr = stg.getBoundingClientRect(), er = el.getBoundingClientRect();
+        const ux = ((er.left + er.width/2) - (sr.left + sr.width/2) - cx) / cs;
+        const uy = ((er.top + er.height/2) - (sr.top + sr.height/2) - cy) / cs;
+        cx = -ux * s; cy = -uy * s; cs = s;
+        rig.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0) scale(${cs})`;
+        document.getElementById("zoom-back").classList.add("show");
+      } else if(el.id === "mod-id") openIdModal(e);
+    }
+    function resetCam() {
+      document.querySelectorAll(".mod").forEach(m => m.classList.remove("active-mod"));
+      cab.classList.remove("focused"); fMod = null; cx = 0; cy = 0; cs = 1;
+      rig.style.transform = "none";
+      document.getElementById("zoom-back").classList.remove("show");
+    }
+
+    // ==================== 5. 作品详情弹窗渲染 ====================
+    function openProject(idx, mode, e) {
+      if(e) e.stopPropagation();
+      curIdx = idx; curMode = mode; renderTabs(); renderWorkModal();
+      document.getElementById("work-modal").classList.add("open");
+    }
+    function stepProject(d) { curIdx = (curIdx + d + projects.length) % projects.length; curMode = "screen"; renderTabs(); renderWorkModal(); }
+    function setMode(m) { curMode = m; renderWorkModal(); }
+    function toggleFit() {
+      isContain = !isContain;
+      document.getElementById("fit-btn").textContent = isContain ? "画幅：完整适应 (点击切换铺满)" : "画幅：铺满 (点击切换完整适应)";
+      renderWorkModal();
+    }
+
+    function renderWorkModal() {
+      const p = projects[curIdx];
+      const editAttr = isLocked ? 'false' : 'true';
+
+      const wmTitle = document.getElementById("wm-title");
+      wmTitle.setAttribute("data-k", `title_v2_${p.key}`);
+      wmTitle.className = "serif ed";
+      wmTitle.setAttribute("contenteditable", editAttr);
+      wmTitle.innerHTML = getCustomText(`title_v2_${p.key}`, p.title);
+
+      const wmRole = document.getElementById("wm-role");
+      wmRole.setAttribute("data-k", `role_${p.key}`);
+      wmRole.className = "mono ed";
+      wmRole.setAttribute("contenteditable", editAttr);
+      wmRole.innerHTML = getCustomText(`role_${p.key}`, p.role);
+
+      document.getElementById("bm-desk").style.display = p.hasProc ? "inline-block" : "none";
+      document.getElementById("bm-screen").className = `btn ${curMode==='screen'?'red':''}`;
+      document.getElementById("bm-desk").className = `btn ${curMode==='desk'?'red':''}`;
+
+      const st = (curMode === "desk" && p.hasProc) ? p.desk : p.screen;
+      const hk = `h_${p.key}_${curMode}`, lk = `l_${p.key}_${curMode}`;
+
+      const wmH = document.getElementById("wm-heading");
+      wmH.setAttribute("data-k", hk);
+      wmH.className = "serif ed";
+      wmH.setAttribute("contenteditable", editAttr);
+      wmH.innerHTML = getCustomText(hk, st.h);
+
+      const wmL = document.getElementById("wm-lead");
+      wmL.setAttribute("data-k", lk);
+      wmL.className = "ed";
+      wmL.setAttribute("contenteditable", editAttr);
+      wmL.innerHTML = getCustomText(lk, st.l);
+
+      document.getElementById("wm-stage").innerHTML = st.secs.map((sec, sIdx) => {
+        const siblingIdsStr = sec.dist ? sec.slots.map(s => s.id).join(",") : "";
+        const extras = sec.multi ? (extraMap[sec.multi] || []) : [];
+
+        const visibleSlots = isLocked
+          ? sec.slots.filter(sl => (slotItemsMap[sl.id] && slotItemsMap[sl.id].length > 0))
+          : sec.slots;
+
+        if (isLocked && visibleSlots.length === 0 && extras.length === 0) {
+          return "";
+        }
+
+        return `
+          <div class="roller-screen-anim">
+            <div class="sec-bar">
+              <strong class="serif ed" data-k="sec_${p.key}_${curMode}_${sIdx}" contenteditable="${editAttr}">${getCustomText(`sec_${p.key}_${curMode}_${sIdx}`, sec.t)}</strong>
+              ${sec.multi ? `<label class="btn red edit-only-ctrl" style="padding:2px 8px; font-size:0.65rem;">+ 批量追加图/视频 (可多选)<input type="file" accept="image/*,video/*" multiple style="display:none" onchange="batchUpload('${sec.multi}', this)"/></label>` : ''}
+            </div>
+            <div class="${sec.g}">
+              ${visibleSlots.map(sl => renderSlot(sl, sec.board, siblingIdsStr)).join("")}
+              ${extras.map((ex, i) => `
+                <div class="slot">
+                  <div class="slot-top">
+                    <span class="s-tag mono ed" data-k="ex_tag_${ex.uid}" contenteditable="${editAttr}">${getCustomText(`ex_tag_${ex.uid}`, ex.name)}</span>
+                    <button class="btn edit-only-ctrl" style="padding:1px 5px; font-size:0.55rem;" onclick="delExtra('${sec.multi}','${ex.uid}')">× 删除</button>
+                  </div>
+                  <div class="s-frame ${isContain?'contain':''}" onclick="${!ex.isVid?`zoomImg('${ex.url}')`:''}">
+                    ${ex.isVid ? portfolioVideo(ex) : `<img src="${ex.url}" alt="${ex.name}" loading="lazy" decoding="async"/>`}
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderSlot(sl, isBoard, siblingIdsStr) {
+      const items = slotItemsMap[sl.id] || [];
+      const count = items.length;
+      const pKey = projects[curIdx].key;
+      const editAttr = isLocked ? 'false' : 'true';
+      const tagKey = `stag_${sl.id}`;
+
+      let contentHTML = "";
+      if (count === 0) {
+        contentHTML = `
+          <div class="s-frame ${isBoard?'board':''}" onclick="if(!isLocked) pickFilesForSlot('${sl.id}', '${siblingIdsStr}')">
+            <div class="empty-tip serif">
+              <span>${isLocked ? '待展槽位' : `+ 点击或拖入${sl.vid?'视频 (.mp4)':'图片/视频 (支持一次多选)'}`}</span>
+            </div>
+          </div>
+        `;
+      } else {
+        const countClass = count === 1 ? 'count-1' : (count === 2 ? 'count-2' : (count === 3 ? 'count-3' : ''));
+        contentHTML = `
+          <div class="slot-gallery-grid ${countClass} ${isBoard ? 'board-mode' : ''}">
+            ${items.map(it => {
+              const isCurCover = customCoverMap[pKey]?.uid === it.uid;
+              return `
+                <div class="media-tile ${isContain?'contain':''}" onclick="${!it.isVid ? `zoomImg('${it.url}')` : ''}">
+                  <div class="tile-top-bar edit-only-ctrl">
+                    <button class="tile-btn ${isCurCover?'is-cover':''}" onclick="setAsProjectCover('${pKey}', '${sl.id}', '${it.uid}', event)">
+                      ${isCurCover ? '★ 外部封面' : '☆ 设为封面'}
+                    </button>
+                    <button class="tile-btn" style="background:rgba(164,36,35,0.9);" onclick="delSlotItem('${sl.id}', '${it.uid}', event)">× 删除</button>
+                  </div>
+                  ${it.isVid
+                    ? portfolioVideo(it)
+                    : `<img src="${it.url}" alt="${it.name}" loading="lazy" decoding="async"/>`}
+                </div>
+              `;
+            }).join("")}
+            <div class="add-more-tile serif edit-only-ctrl" onclick="pickFilesForSlot('${sl.id}', '')">
+              <span style="font-size:1.2rem;">＋</span>
+              <span>继续添加</span>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="slot" ondragover="if(!isLocked){event.preventDefault();this.classList.add('drag-over')}" ondragleave="this.classList.remove('drag-over')" ondrop="if(!isLocked) dropFilesOnSlot(event,'${sl.id}','${siblingIdsStr}',this)">
+          <div class="slot-top">
+            <span class="s-tag mono ed" data-k="${tagKey}" contenteditable="${editAttr}">${getCustomText(tagKey, sl.tag)}</span>
+            <div class="edit-only-ctrl" style="display:flex; gap:5px;">
+              ${count > 0 ? `<button class="btn" style="padding:2px 6px; font-size:0.55rem;" onclick="clearEntireSlot('${sl.id}')">清空</button>` : ''}
+              <label class="up-lbl">
+                + ${count > 0 ? '继续添加' : '放置文件'}
+                <input type="file" accept="video/*,image/*" multiple style="display:none" onchange="handleSlotInput('${sl.id}', '${siblingIdsStr}', this)"/>
+              </label>
+            </div>
+          </div>
+          ${contentHTML}
+        </div>
+      `;
+    }
+
+    function pickFilesForSlot(slotId, siblingIdsStr) {
+      if (isLocked) return;
+      const inp = document.createElement("input");
+      inp.type = "file"; inp.accept = "video/*,image/*"; inp.multiple = true;
+      inp.onchange = () => handleSlotInput(slotId, siblingIdsStr, inp);
+      inp.click();
+    }
+
+    function dropFilesOnSlot(e, slotId, siblingIdsStr, el) {
+      if (isLocked) return;
+      e.preventDefault(); el.classList.remove("drag-over");
+      const files = Array.from(e.dataTransfer?.files || []);
+      if (files.length) addFilesToSlotQueue(slotId, siblingIdsStr, files);
+    }
+
+    function handleSlotInput(slotId, siblingIdsStr, inp) {
+      if (isLocked) return;
+      const files = Array.from(inp.files || []);
+      if (files.length) addFilesToSlotQueue(slotId, siblingIdsStr, files);
+      inp.value = "";
+    }
+
+    function addFilesToSlotQueue(slotId, siblingIdsStr, files) {
+      const siblingIds = siblingIdsStr ? siblingIdsStr.split(",") : [];
+      if (siblingIds.length > 1 && files.length > 1) {
+        const startIdx = siblingIds.indexOf(slotId);
+        const othersEmpty = siblingIds.every(sid => sid === slotId || !(slotItemsMap[sid]?.length));
+        if (othersEmpty && startIdx !== -1 && files.length <= siblingIds.length) {
+          files.forEach((f, i) => pushSingleFile(siblingIds[startIdx + i] || slotId, f));
+          renderWorkModal();
+          renderTabs();
+          return;
+        }
+      }
+      files.forEach(f => pushSingleFile(slotId, f));
+      renderWorkModal();
+      renderTabs();
+    }
+
+    function pushSingleFile(slotId, file) {
+      if (!slotItemsMap[slotId]) slotItemsMap[slotId] = [];
+      const isVid = file.type.startsWith("video/");
+      const item = {
+        uid: `item_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,
+        name: file.name.replace(/\.[^/.]+$/, ""),
+        isVid,
+        blob: file,
+        url: URL.createObjectURL(file)
+      };
+      slotItemsMap[slotId].push(item);
+      saveSlotToDB(slotId);
+    }
+
+    function setAsProjectCover(projKey, slotId, uid, e) {
+      if (e) e.stopPropagation();
+      const arr = slotItemsMap[slotId] || [];
+      const found = arr.find(x => x.uid === uid);
+      if (found) {
+        customCoverMap[projKey] = { uid: found.uid, url: found.url, isVid: found.isVid, hasCustom: true };
+        renderWorkModal();
+        renderTabs();
+      }
+    }
+
+    function delSlotItem(slotId, uid, e) {
+      if (e) e.stopPropagation();
+      if (isLocked) return;
+      slotItemsMap[slotId] = (slotItemsMap[slotId] || []).filter(x => x.uid !== uid);
+      const pKey = projects[curIdx].key;
+      if (customCoverMap[pKey]?.uid === uid) delete customCoverMap[pKey];
+      saveSlotToDB(slotId);
+      renderWorkModal();
+      renderTabs();
+    }
+
+    function clearEntireSlot(slotId) {
+      if (isLocked) return;
+      delete slotItemsMap[slotId];
+      if (db) db.transaction("slotStore", "readwrite").objectStore("slotStore").delete(slotId);
+      renderWorkModal();
+      renderTabs();
+    }
+
+    function saveSlotToDB(slotId) {
+      if (!db) return;
+      const list = (slotItemsMap[slotId] || []).map(x => ({ uid: x.uid, name: x.name, isVid: x.isVid, blob: x.blob }));
+      db.transaction("slotStore", "readwrite").objectStore("slotStore").put({ id: slotId, list });
+    }
+
+    function batchUpload(key, inp) {
+      if (isLocked) return;
+      const files = Array.from(inp.files || []);
+      if(!files.length) return;
+      if(!extraMap[key]) extraMap[key] = [];
+      files.forEach(f => {
+        extraMap[key].push({ uid: `u_${Date.now()}_${Math.random()}`, name: f.name.replace(/\.[^/.]+$/, ""), isVid: f.type.startsWith("video/"), blob: f, url: URL.createObjectURL(f) });
+      });
+      if (db && db.objectStoreNames.contains("lists")) {
+        const list = extraMap[key].map(x => ({ uid: x.uid, name: x.name, isVid: x.isVid, blob: x.blob }));
+        db.transaction("lists","readwrite").objectStore("lists").put({ key, list });
+      }
+      renderWorkModal(); renderTabs();
+    }
+
+    function delExtra(key, uid) {
+      if (isLocked) return;
+      extraMap[key] = (extraMap[key]||[]).filter(x => x.uid !== uid);
+      if (db && db.objectStoreNames.contains("lists")) {
+        const list = extraMap[key].map(x => ({ uid: x.uid, name: x.name, isVid: x.isVid, blob: x.blob }));
+        db.transaction("lists","readwrite").objectStore("lists").put({ key, list });
+      }
+      renderWorkModal(); renderTabs();
+    }
+
+    // ==================== 6. 一键将你本地上传的所有作品固化打包为「全锁定公开分享版 index.html」 ====================
+    function blobToDataURL(blob) {
+      return new Promise(resolve => {
+        if (!blob) return resolve("");
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => resolve("");
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    async function exportStandalonePublicHTML() {
+      const btn = document.getElementById("export-public-btn");
+      const idleLabel = "保存上线文件夹（视频逐个保存）";
+      if (window.__IS_EXPORTED_PUBLIC_BUILD__) return;
+      if (!window.__PORTFOLIO_DATA_READY__) {
+        alert("作品还在从浏览器加载，请等全部作品出现后再保存。若一直未加载，请先确认这是原来上传作品时使用的浏览器。");
+        return;
+      }
+      if (typeof window.showDirectoryPicker !== "function") {
+        alert("当前浏览器不支持直接保存文件夹。请先不要切换浏览器或清除数据，将浏览器名称告诉我，以便保留当前浏览器中的作品。");
+        return;
+      }
+      btn.disabled = true;
+      let output;
+      let savedCount = 0;
+      let savedBytes = 0;
+      try {
+        // Must run directly from the click, before asynchronous work consumes user activation.
+        const parent = await window.showDirectoryPicker({ mode: "readwrite", id: "hsy-portfolio-export" });
+        saveAllCustomText();
+        if (!isLocked) toggleLockMode();
+        const stamp = new Date().toISOString().replace(/[-:TZ.]/g, "");
+        const folderName = `portfolio-${stamp}-${Math.random().toString(36).slice(2, 7)}`;
+        output = await parent.getDirectoryHandle(folderName, { create: true });
+        const assets = await output.getDirectoryHandle("assets", { create: true });
+        const slotsSnapshot = Object.fromEntries(Object.entries(slotItemsMap).map(([k, v]) => [k, [...(v || [])]]));
+        const extrasSnapshot = Object.fromEntries(Object.entries(extraMap).map(([k, v]) => [k, [...(v || [])]]));
+        const coverSnapshot = { ...customCoverMap };
+        const payload = { textMap: { ...textMap }, slots: {}, extras: {}, covers: {} };
+        const manifest = [];
+        const byUid = new Map();
+        const bySource = new Map();
+        const mimeExt = {
+          "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov",
+          "video/x-m4v": "m4v", "video/ogg": "ogv", "video/x-msvideo": "avi",
+          "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp",
+          "image/gif": "gif", "image/avif": "avif", "image/svg+xml": "svg",
+          "image/bmp": "bmp", "image/heic": "heic", "image/tiff": "tif"
+        };
+        const total = [...Object.values(slotsSnapshot), ...Object.values(extrasSnapshot)]
+          .reduce((n, list) => n + list.length, 0);
+        if (!total) throw new Error("没有读取到图片或视频。请确认当前页面确实能看到已上传作品，再保存。未生成空白网站。");
+        async function writeFile(directory, name, data) {
+          const handle = await directory.getFileHandle(name, { create: true });
+          const writable = await handle.createWritable();
+          try {
+            // Pass the original Blob to the browser; never expand video into a base64 string.
+            await writable.write(data);
+            await writable.close();
+          } catch (error) {
+            try { await writable.abort(); } catch (_) {}
+            throw error;
+          }
+        }
+        async function exportItem(item, section, slot) {
+          let relativePath = bySource.get(item.blob || item.url);
+          if (!relativePath) {
+            let blob = item.blob;
+            if (!(blob instanceof Blob)) {
+              if (!item.url) throw new Error(`素材缺少文件：${item.name || slot}`);
+              const response = await fetch(item.url);
+              if (!response.ok) throw new Error(`素材无法读取：${item.name || slot}（${response.status}）`);
+              blob = await response.blob();
+            }
+            if (!blob.size) throw new Error(`素材文件为空：${item.name || slot}`);
+            const originalName = String(blob.name || item.name || "");
+            const extensionMatch = originalName.match(/\.([a-z0-9]{1,8})$/i);
+            const extension = extensionMatch ? extensionMatch[1].toLowerCase()
+              : (mimeExt[blob.type.split(";")[0]] || (item.isVid ? "mp4" : "bin"));
+            const safeSlot = String(slot).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 45) || "media";
+            const filename = `${String(manifest.length + 1).padStart(4, "0")}-${safeSlot}.${extension}`;
+            btn.textContent = `正在逐个保存 ${savedCount + 1}/${total} · ${item.name || slot}`;
+            await writeFile(assets, filename, blob);
+            relativePath = `assets/${filename}`;
+            bySource.set(item.blob || item.url, relativePath);
+            manifest.push({ path: relativePath, name: item.name || "", section, slot,
+              bytes: blob.size, mime: blob.type, isVid: !!item.isVid });
+            savedBytes += blob.size;
+          }
+          savedCount += 1;
+          const result = { uid: item.uid, name: item.name || "", isVid: !!item.isVid, url: relativePath };
+          if (item.uid) byUid.set(item.uid, result);
+          return result;
+        }
+        for (const [slot, list] of Object.entries(slotsSnapshot)) {
+          payload.slots[slot] = [];
+          for (const item of list) payload.slots[slot].push(await exportItem(item, "slots", slot));
+        }
+        for (const [slot, list] of Object.entries(extrasSnapshot)) {
+          payload.extras[slot] = [];
+          for (const item of list) payload.extras[slot].push(await exportItem(item, "extras", slot));
+        }
+        for (const [key, cover] of Object.entries(coverSnapshot)) {
+          const exported = byUid.get(cover.uid);
+          if (exported) payload.covers[key] = { ...exported, hasCustom: true };
+        }
+        // Clean rendered Blob URLs before saving. Media will be rebuilt from relative paths on load.
+        const clone = document.documentElement.cloneNode(true);
+        clone.querySelector("#owner-dock")?.remove();
+        clone.querySelector("#wm-stage")?.replaceChildren();
+        clone.querySelector("#cert-stage")?.replaceChildren();
+        clone.querySelectorAll(".mask.open, .lightbox.open, .cabinet.open").forEach(el => el.classList.remove("open"));
+        clone.querySelectorAll("[src]").forEach(el => {
+          if (/^(blob:|data:)/i.test(el.getAttribute("src") || "")) el.removeAttribute("src");
+        });
+        clone.querySelectorAll(".ed").forEach(el => el.setAttribute("contenteditable", "false"));
+        clone.querySelector("body")?.classList.add("locked-mode");
+        const bakedScript = clone.querySelector("#baked-data-script");
+        if (!bakedScript) throw new Error("未找到网页数据注入位置，请保留已保存的 assets 文件夹并告知错误。");
+        const json = JSON.stringify(payload).replace(/</g, "\\u003c");
+        bakedScript.textContent = `window.__IS_EXPORTED_PUBLIC_BUILD__ = true; window.__BAKED_PORTFOLIO_DATA__ = ${json};`;
+        const html = "<!DOCTYPE html>\n" + clone.outerHTML;
+        await writeFile(output, "media-manifest.json", JSON.stringify({
+          format: "hsy-portfolio-folder-v1", createdAt: new Date().toISOString(),
+          mediaFiles: manifest.length, mediaBytes: savedBytes, files: manifest
+        }, null, 2));
+        await writeFile(output, "使用说明.txt", "这是完整的作品集上线文件夹。\nindex.html 和 assets 文件夹必须一起保留和上传。\nassets 中的视频和图片已从浏览器逐个保存。\n本文件夹只代表导出完成，不代表网站已经上线。\n请将本文件夹完整路径发给 Codex，继续检查和部署。\n");
+        // Write the entry page last so a failed export is never mistaken for a complete site.
+        await writeFile(output, "index.html", html);
+        btn.textContent = `已保存 ${manifest.length} 个素材 · ${(savedBytes / 1024 / 1024).toFixed(1)} MB`;
+        alert(`完整导出成功。\n文件夹：${folderName}\n素材：${manifest.length} 个\n请将这个文件夹的完整路径发给我，继续检查并上线。`);
+      } catch (error) {
+        btn.textContent = idleLabel;
+        if (error?.name === "AbortError") return;
+        console.error("作品集文件夹导出失败", error);
+        alert(`保存未完成：${error?.message || error}\n已逐个处理 ${savedCount} 个素材。浏览器中的原始作品未删除。\n请保留当前浏览器，不要清理数据。`);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+
+    // ==================== 7. 个人信息、技能盒与证书灯箱 ====================
+    const skCards = [
+      { c: "01 / 03 SKILLS", t: "个人技能 · AIGC全链路创作", bg: "var(--lime)", col: "#1E2414", tags: ["AIGC图像与视频生成","游戏世界观与高保真UI","角色三视图与一致控制","短剧与动画分镜叙事"], p2: "02 设计软件", p1: "03 核心能力" },
+      { c: "02 / 03 SOFTWARE", t: "设计软件 · 三维与生成工具栈", bg: "var(--blue)", col: "#FFF", tags: ["Midjourney / 即梦AI","可灵 Kling / Runway","Blender / Unreal 5","PS / AI / Premiere"], p2: "03 核心能力", p1: "01 个人技能" },
+      { c: "03 / 03 CAPABILITIES", t: "核心能力 · 四类可核对材料", bg: "var(--kraft)", col: "#2B1B10", tags: ["提出概念(故事/边界)","确立画面(角色/色彩)","生成镜头(AI/分镜)","完成呈现(展板/Demo)"], p2: "01 个人技能", p1: "02 设计软件" }
+    ];
+    let skIdx = 0;
+    function cycleSkills(e) {
+      if(e) e.stopPropagation();
+      if(!isLocked && e && e.target.closest(".ed")) return;
+      skIdx = (skIdx + 1) % 3; const d = skCards[skIdx], el = document.getElementById("sk-card");
+      el.classList.remove("flipping"); void el.offsetWidth; el.classList.add("flipping");
+      el.style.background = d.bg; el.style.color = d.col;
+      document.getElementById("sk-code").textContent = d.c; document.getElementById("sk-title").textContent = d.t;
+      document.getElementById("sk-tags").innerHTML = d.tags.map(x => `<span class="tag">${x}</span>`).join("");
+      document.getElementById("pk2").innerHTML = `<span>${d.p2}</span><span>NEXT</span>`;
+      document.getElementById("pk1").innerHTML = `<span>${d.p1}</span><span>STACK</span>`;
+    }
+
+    let dimIdx = 0;
+    const dims = [{ a: 0, t: "聚光灯: 标准" }, { a: 0.35, t: "聚光灯: 剧场" }, { a: 0.65, t: "聚光灯: 暗房" }];
+    function rotateDimmer(e) {
+      if(e) e.stopPropagation();
+      dimIdx = (dimIdx + 1) % 3;
+      document.body.style.setProperty("--dim", String(dims[dimIdx].a));
+      document.getElementById("dim-txt").textContent = dims[dimIdx].t;
+    }
+
+    let audioCtx = null, noteIdx = 0;
+    const notes = [261.6, 293.7, 329.6, 392.0, 440.0];
+    function playChime(e) {
+      if(e) e.stopPropagation();
+      try {
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.frequency.setValueAtTime(notes[noteIdx++ % 5], audioCtx.currentTime);
+        g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+        o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.35);
+      } catch(err) {}
+    }
+
+    function handleAvatarClick(e) {
+      if(e) e.stopPropagation();
+      if(!isLocked) triggerAvatar(e);
+      else {
+        const av = slotItemsMap.avatar?.[0];
+        if (av) zoomImg(av.url);
+        else openIdModal(e);
+      }
+    }
+
+    function triggerAvatar(e) { if(e) e.stopPropagation(); if(!isLocked) document.getElementById("avatar-input").click(); }
+    function setAvatar(url) {
+      ["wing","modal"].forEach(p => {
+        document.getElementById(`${p}-avatar`).src = url; document.getElementById(`${p}-avatar`).style.display = "block";
+        document.getElementById(`${p}-avatar-ph`).style.display = "none";
+      });
+    }
+    function uploadAvatar(inp) {
+      const f = inp.files?.[0]; if(!f) return;
+      const url = URL.createObjectURL(f); setAvatar(url);
+      slotItemsMap.avatar = [{ uid: "av", name: "avatar", isVid: false, blob: f, url }];
+      if(db) db.transaction("slotStore","readwrite").objectStore("slotStore").put({ id: "avatar", list: [{ uid: "av", name: "avatar", isVid: false, blob: f }] });
+    }
+
+    const certs = ["东方创意之星 · 省赛本科组铜奖（《蝶魄》）", "第五届 HKDADC 香港数字艺术设计大赛 · 三等奖（《新雪》）", "UKDA 英国新概念设计奖 · 中国赛区提名奖（《雪汀寒舟图》）"];
+    function openCert(i, e) {
+      if(e) e.stopPropagation();
+      if(!isLocked && e && e.target.closest(".ed")) return;
+      curCert = i; renderCert(); document.getElementById("cert-modal").classList.add("open");
+    }
+    function switchCert(i) { curCert = i; renderCert(); }
+    function renderCert() {
+      [0,1,2].forEach(i => document.getElementById(`ct-${i}`).classList.toggle("red", i===curCert));
+      const cTitle = document.getElementById("cert-title");
+      const ck = `cert_full_${curCert}`;
+      cTitle.setAttribute("data-k", ck);
+      cTitle.setAttribute("contenteditable", isLocked ? "false" : "true");
+      cTitle.innerHTML = getCustomText(ck, certs[curCert]);
+
+      const arr = slotItemsMap[`cert_${curCert}`] || [], st = document.getElementById("cert-stage");
+      if(arr.length) st.innerHTML = `<img src="${arr[0].url}" style="max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;" onclick="zoomImg('${arr[0].url}')"/>`;
+      else st.innerHTML = `<div class="empty-tip serif">证书图片展示区</div>`;
+    }
+    function uploadCertImg(inp) {
+      if (isLocked) return;
+      const f = inp.files?.[0]; if(!f) return;
+      const url = URL.createObjectURL(f);
+      slotItemsMap[`cert_${curCert}`] = [{ uid: "c", name: "cert", isVid: false, blob: f, url }];
+      document.getElementById(`cp-${curCert}`).innerHTML = `<img src="${url}"/>`;
+      saveSlotToDB(`cert_${curCert}`);
+      renderCert();
+    }
+
+    function openIdModal(e) { if(e) e.stopPropagation(); document.getElementById("id-modal").classList.add("open"); }
+    function copyContact(e) {
+      if(e) e.stopPropagation();
+      const tel = document.querySelector('[data-k="phone"]')?.textContent || "191 8130 6040";
+      const mail = document.querySelector('[data-k="email"]')?.textContent || "2862960645@qq.com";
+      const wx = document.querySelector('[data-k="wechat"]')?.textContent || "Y140042881";
+      navigator.clipboard?.writeText(`胡思羽 | 电话: ${tel} | 邮箱: ${mail} | 微信: ${wx}`);
+      document.getElementById("copy-btn").textContent = "✓ 已复制到剪贴板";
+    }
+    function zoomImg(url) { if(!url) return; document.getElementById("lb-img").src = url; document.getElementById("lightbox").classList.add("open"); }
+    function closeModals() { document.querySelectorAll("video").forEach(v => v.pause()); document.querySelectorAll(".mask, .lightbox").forEach(m => m.classList.remove("open")); }
+    function toggleTheme() { document.body.setAttribute("data-theme", document.body.getAttribute("data-theme")==="glacier"?"atelier":"glacier"); }
+
+    window.addEventListener("mousemove", e => {
+      document.body.style.setProperty("--mx", `${e.clientX}px`);
+      document.body.style.setProperty("--my", `${e.clientY}px`);
+    });
+
+    // ==================== 8. 启动加载：优先读取已固化的公开版数据，否则读取你本地浏览器已上传的数据库 ====================
+    function initPortfolioData() {
+      if (window.__IS_EXPORTED_PUBLIC_BUILD__ && window.__BAKED_PORTFOLIO_DATA__) {
+        const baked = window.__BAKED_PORTFOLIO_DATA__;
+        textMap = baked.textMap || {};
+        slotItemsMap = baked.slots || {};
+        extraMap = baked.extras || {};
+        customCoverMap = baked.covers || {};
+        window.__PORTFOLIO_DATA_READY__ = true;
+        document.querySelectorAll(".ed").forEach(el => {
+          const k = el.getAttribute("data-k");
+          if (textMap[k] !== undefined) el.innerHTML = textMap[k];
+        });
+        if (slotItemsMap.avatar?.[0]) setAvatar(slotItemsMap.avatar[0].url);
+        [0,1,2].forEach(i => {
+          if (slotItemsMap[`cert_${i}`]?.[0]) {
+            document.getElementById(`cp-${i}`).innerHTML = `<img src="${slotItemsMap[`cert_${i}`][0].url}"/>`;
+          }
+        });
+        renderTabs();
+        return;
+      }
+
+      try {
+        const savedTxt = JSON.parse(localStorage.getItem("hsy_profile_v6") || localStorage.getItem("hsy_profile_v5") || localStorage.getItem("hsy_profile_2026") || "{}");
+        textMap = savedTxt;
+        document.querySelectorAll(".ed").forEach(el => {
+          const k = el.getAttribute("data-k");
+          if (textMap[k] !== undefined) el.innerHTML = textMap[k];
+        });
+      } catch(e) {}
+
+      const req = indexedDB.open("HuSiyuVault_2026_v6", 1);
+      req.onupgradeneeded = e => {
+        if (!e.target.result.objectStoreNames.contains("slotStore")) {
+          e.target.result.createObjectStore("slotStore", { keyPath: "id" });
+        }
+      };
+      req.onsuccess = e => {
+        db = e.target.result;
+        const tx = db.transaction("slotStore", "readonly");
+        tx.objectStore("slotStore").getAll().onsuccess = ev => {
+          (ev.target.result || []).forEach(x => {
+            slotItemsMap[x.id] = (x.list || []).map(it => ({ ...it, url: URL.createObjectURL(it.blob) }));
+            if (x.id === "avatar" && slotItemsMap.avatar?.[0]) setAvatar(slotItemsMap.avatar[0].url);
+            if (x.id.startsWith("cert_") && slotItemsMap[x.id]?.[0]) {
+              document.getElementById(`cp-${x.id.split("_")[1]}`).innerHTML = `<img src="${slotItemsMap[x.id][0].url}"/>`;
+            }
+          });
+          renderTabs();
+          window.__PORTFOLIO_DATA_READY__ = true;
+        };
+        tx.onerror = () => console.error("作品读取失败", tx.error);
+      };
+      req.onerror = () => console.error("作品数据库打开失败", req.error);
+    }
+
+    renderTabs();
+    initPortfolioData();
+  </script>
+</body>
+</html>
