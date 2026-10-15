@@ -1,0 +1,56 @@
+[
+  {
+    "slot": "stang_c_all",
+    "name": "第四集",
+    "path": "assets/0029-stang_c_all.mp4",
+    "bytes": 10612237
+  },
+  {
+    "slot": "stang_c_all",
+    "name": "第五集",
+    "path": "assets/0030-stang_c_all.mp4",
+    "bytes": 6836638
+  },
+  {
+    "slot": "stang_c_all",
+    "name": "第八集",
+    "path": "assets/0031-stang_c_all.mp4",
+    "bytes": 5068473
+  },
+  {
+    "slot": "stang_c_all",
+    "name": "第七集",
+    "path": "assets/0033-stang_c_all.mp4",
+    "bytes": 4827470
+  },
+  {
+    "slot": "hj_v1",
+    "name": "后街",
+    "path": "assets/0095-hj_v1.mp4",
+    "bytes": 22745948
+  },
+  {
+    "slot": "psy_v1",
+    "name": "《蝶魄》-视频展示",
+    "path": "assets/0110-psy_v1.mp4",
+    "bytes": 38903677
+  },
+  {
+    "slot": "st_v1",
+    "name": "视频-星光坠落之时-胡思羽、吴沂蔚",
+    "path": "assets/0139-st_v1.mp4",
+    "bytes": 27491317
+  },
+  {
+    "slot": "xx_v1",
+    "name": "《湖心梦雪》AIGC动画",
+    "path": "assets/0157-xx_v1.mp4",
+    "bytes": 46772847
+  },
+  {
+    "slot": "ym_v1",
+    "name": "《忆梦园》",
+    "path": "assets/0158-ym_v1.mp4",
+    "bytes": 51553210
+  }
+]

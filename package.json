@@ -1,0 +1,11 @@
+{
+  "engines": {
+    "node": "22.x"
+  },
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node validate-site.cjs"
+  },
+  "name": "husiyu-portfolio"
+}
