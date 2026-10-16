@@ -87,7 +87,11 @@
     "t_denghuo": "灯火可亲",
     "pl_denghuo_0": "3 张成品展板",
     "pl_denghuo_1": "多张高保真界面展示",
-    "act_denghuo": "点击进入《灯火可亲》 →"
+    "act_denghuo": "点击进入《灯火可亲》 →",
+    "h_sutang_screen": "《苏棠沉冤昭雪》部分成片与短剧试剪展示",
+    "l_sutang_screen": "《好运王妃》试剪视频与《苏棠沉冤昭雪》部分成片片段展示：",
+    "stag_stang_trial_1": "《好运王妃》试剪视频",
+    "stag_stang_c_all": "《苏棠沉冤昭雪》部分成片视频"
   },
   "slots": {
     "stang_p1": [
@@ -286,12 +290,6 @@
         "url": "assets/0031-stang_c_all.mp4",
         "poster": "assets/0031-stang_c_all-poster.webp",
         "duration": 43.21
-      },
-      {
-        "uid": "item_1792064484909_54wh5",
-        "name": "展板",
-        "isVid": false,
-        "url": "assets/0032-stang_c_all.webp"
       },
       {
         "uid": "item_1792069410658_v3oah",
@@ -1125,8 +1123,25 @@
         "poster": "assets/0158-ym_v1-poster.webp",
         "duration": 162.32999999999998
       }
+    ],
+    "stang_trial_1": [
+      {
+        "uid": "trial_haoyunwangfei_20261015",
+        "name": "《好运王妃》试剪视频",
+        "isVid": true,
+        "url": "assets/0159-stang_trial_1.mp4",
+        "poster": "assets/0159-stang_trial_1-poster.webp",
+        "duration": 180.51
+      }
     ]
   },
   "extras": {},
-  "covers": {}
+  "covers": {
+    "sutang": {
+      "uid": "item_1792064233570_wcupd",
+      "url": "assets/0029-stang_c_all-poster.webp",
+      "isVid": false,
+      "hasCustom": true
+    }
+  }
 }

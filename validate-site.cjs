@@ -18,7 +18,7 @@ for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
   assert(!match[1].includes('src='),'External JavaScript resource in public site');
   new vm.Script(match[2]);
 }
-assert.equal(videos,9);assert.equal(images,149);
+assert.equal(videos,10);assert.equal(images,148);
 assert(!html.includes('fonts.googleapis.com'));
 assert(html.includes('window.__IS_EXPORTED_PUBLIC_BUILD__ = true;'));
 console.log(JSON.stringify({validated:true,images,videos,staticSite:true}));
